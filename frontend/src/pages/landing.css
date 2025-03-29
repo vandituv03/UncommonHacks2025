@@ -1,238 +1,292 @@
 /* === Canvas Background === */
 .three-canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    opacity: 0.5;
-  }
-  
-  /* === Navbar === */
-  .navbar {
-    background-color: #1e1e2f;
-    box-shadow: 1px 1px rgba(0, 0, 0, 0.3);
-    padding: 0.5rem 0.5rem;
-    position: fixed;
-    height: 20%;
-    width: 100%;
-    z-index: 50;
-  }
-  
-  .navbar-container {
-    max-width: 1280px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .navbar-logo {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #c084fc;
-    font-size: 1.25rem;
-    font-weight: bold;
-  }
-  
-  .login-button {
-    border: 1px solid #a855f7;
-    padding: 1.5rem 3rem;
-    color: #d8b4fe;
-    border-radius: 9999px;
-    background-color: transparent;
-    transition: background 0.2s;
-    font-weight: 600;
-    font-size: 1.25rem;
-  }
-  
-  .login-button:hover {
-    background-color: #7e22ce;
-  }
-  
-  /* === Main Content === */
-  .main-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 7rem 1rem 5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 8rem;
-    text-align: center;
-    position: relative;
-    z-index: 10;
-  }
-  
-  /* === Hero Section === */
-  .hero-section {
-    display: flex;
-    flex-direction: column;
-    gap: 3rem;
-  }
-  
-  .hero-text h1 {
-    font-size: 5rem;
-    color: white;
-    font-weight: 800;
-    line-height: 1.2;
-    text-shadow: 0 0 8px #c084fc, 0 0 16px #c084fc;
-  }
-  
-  .hero-text p {
-    font-size: 1.5rem;
-    color: #e9d5ff;
-  }
-  
-  /* === Now Playing Card === */
-  .now-playing-card {
-    background-color: #1e1e2f;
-    border-radius: 1rem;
-    padding: 1.5rem;
-    max-width: 100%;
-    margin: 0 auto;
-  }
-  
-  .now-playing-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    color: #d8b4fe;
-  }
-  
-  .now-playing-status {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    color: #c084fc;
-    font-size: 0.875rem;
-  }
-  
-  .now-playing-body {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-  
-  .album-art {
-    width: 6rem;
-    height: 6rem;
-    background: linear-gradient(to bottom right, #7e22ce, #9333ea);
-    border-radius: 0.75rem;
-    overflow: hidden;
-    box-shadow: 0 0 10px rgba(128, 0, 255, 0.4);
-  }
-  
-  .album-art img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .song-details {
-    text-align: left;
-    flex: 1;
-  }
-  
-  .song-details h3 {
-    color: white;
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-  }
-  
-  .song-details p {
-    color: #d8b4fe;
-    font-size: 0.875rem;
-  }
-  
-  .like-button {
-    margin-top: 0.5rem;
-    background-color: rgba(185, 28, 28, 0.2);
-    color: #f87171;
-  }
-  
-  /* === Features Section === */
-  .features-section h2 {
-    font-size: 2rem;
-    font-weight: bold;
-    color: white;
-    margin-bottom: 3rem;
-    text-shadow: 0 0 8px #c084fc;
-  }
-  
-  .features-grid {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-  }
-  
-  .feature-card {
-    background-color: #1e1e2f;
-    padding: 1.5rem;
-    border-radius: 1rem;
-    text-align: center;
-    width: 100%;
-    transition: transform 0.2s ease;
-  }
-  
-  .feature-card:hover {
-    transform: scale(1.05);
-  }
-  
-  .feature-icon {
-    background-color: #9333ea;
-    width: 3.5rem;
-    height: 3.5rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 9999px;
-    margin: 0 auto 1rem;
-    color: white;
-  }
-  
-  .feature-card h3 {
-    color: white;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-  }
-  
-  .feature-card p {
-    color: #e9d5ff;
-    font-size: 0.875rem;
-  }
-  
-  /* === CTA Section === */
-  .cta-section h2 {
-    font-size: 2rem;
-    font-weight: bold;
-    color: white;
-    margin-bottom: 1rem;
-    text-shadow: 0 0 8px #c084fc;
-  }
-  
-  .cta-section p {
-    color: #d8b4fe;
-    font-size: 1rem;
-    margin-bottom: 2rem;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  
-  .cta-button {
-    padding: 1rem 2rem;
-    border-radius: 9999px;
-    background: linear-gradient(to right, #9333ea, #ec4899);
-    color: white;
-    font-weight: 600;
-    font-size: 1rem;
-    box-shadow: 0 4px 12px rgba(147, 51, 234, 0.4);
-    transition: transform 0.2s ease;
-  }
-  
-  .cta-button:hover {
-    transform: scale(1.05);
-  }  
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  opacity: 0.5;
+}
+
+/* === Navbar (Left Logo & Right Login Button) === */
+.navbar {
+  background-color: #1e1e2f;
+  box-shadow: 1px 1px rgba(0, 0, 0, 0.3);
+  padding: 0.25rem 1rem;
+  position: fixed;
+  height: 4rem;
+  width: 100%;
+  z-index: 50;
+}
+
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #c084fc;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+/* Login Button Right-Aligned */
+.login-button {
+  border: 1px solid #a855f7;
+  padding: 0.5rem 1.25rem;
+  color: #d8b4fe;
+  border-radius: 9999px;
+  background-color: transparent;
+  transition: background 0.2s;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.login-button:hover {
+  background-color: #7e22ce;
+}
+
+/* === Main Content === */
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 5rem 1rem 2rem; /* reduced bottom padding */
+  display: flex;
+  flex-direction: column;
+  gap: 8rem;
+  text-align: center;
+  position: relative;
+  z-index: 10;
+}
+
+/* === Hero Section === */
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.hero-text h1 {
+  font-size: 5rem;
+  color: white;
+  font-weight: 800;
+  line-height: 1.2;
+  text-shadow: 0 0 8px #c084fc, 0 0 16px #c084fc;
+}
+
+.hero-text p {
+  font-size: 1.5rem;
+  color: #e9d5ff;
+}
+
+/* === Now Playing Card === */
+.now-playing-card {
+  background-color: #1e1e2f;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.now-playing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  color: #d8b4fe;
+}
+
+.now-playing-status {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #c084fc;
+  font-size: 0.875rem;
+}
+
+.now-playing-body {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.album-art {
+  width: 6rem;
+  height: 6rem;
+  background: linear-gradient(to bottom right, #7e22ce, #9333ea);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(128, 0, 255, 0.4);
+}
+
+.album-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.song-details {
+  text-align: left;
+  flex: 1;
+}
+
+.song-details h3 {
+  color: white;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.song-details p {
+  color: #d8b4fe;
+  font-size: 0.875rem;
+}
+
+.like-button {
+  margin-top: 0.5rem;
+  background-color: rgba(185, 28, 28, 0.2);
+  color: #f87171;
+}
+
+/* === Features Section === */
+.features-section h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 3rem;
+  text-shadow: 0 0 8px #c084fc;
+}
+
+.features-grid {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.feature-card {
+  background-color: #1e1e2f;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  text-align: center;
+  width: 100%;
+  transition: transform 0.2s ease;
+}
+
+.feature-card:hover {
+  transform: scale(1.05);
+}
+
+.feature-icon {
+  background-color: #9333ea;
+  width: 3.5rem;
+  height: 3.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 9999px;
+  margin: 0 auto 1rem;
+  color: white;
+}
+
+.feature-card h3 {
+  color: white;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.feature-card p {
+  color: #e9d5ff;
+  font-size: 0.875rem;
+}
+
+/* === CTA Section === */
+.cta-section h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 8px #c084fc;
+}
+
+.cta-section p {
+  color: #d8b4fe;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cta-button {
+  padding: 1rem 2rem;
+  border-radius: 9999px;
+  background: linear-gradient(to right, #9333ea, #ec4899);
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.4);
+  transition: transform 0.2s ease;
+}
+
+.cta-button:hover {
+  transform: scale(1.05);
+}
+
+.footer {
+  background-color: #1e1e2f;
+  height: 4rem; /* same as navbar */
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  color: #d8b4fe;
+  z-index: 10;
+  margin-top: 4rem;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #c084fc;
+  font-size: 1.125rem;
+}
+
+.footer-center p {
+  font-size: 0.875rem;
+  color: #d8b4fe;
+  margin: 0;
+}
+
+.footer-right a {
+  margin-left: 1rem;
+  font-size: 1.25rem;
+  color: #c084fc;
+  transition: color 0.3s ease;
+}
+
+.footer-right a:hover {
+  color: #ec4899;
+}
+
+.footer-branding {
+  display: none; /* hide WIDE CANVAS or place it inside footer-left if needed */
+}
