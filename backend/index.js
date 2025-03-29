@@ -22,32 +22,32 @@ const spotifyApi = new SpotifyWebApi({
   redirectUri: process.env.REDIRECT_URL,
 });
 
-// // CORS setup
-// app.use(
-//   cors({
-//     origin: "http://localhost:5173",
-//     credentials: true,
-//   }),
-// );
+// CORS setup
+app.use(
+  cors({
+    origin: "http://localhost:${PORT}",
+    credentials: true,
+  }),
+);
 
-// // Session setup
-// app.use(
-//   session({
-//     secret: "a-very-secret-key",
-//     resave: false,
-//     saveUninitialized: true,
-//   }),
-// );
+// Session setup
+app.use(
+  session({
+    secret: "a-very-secret-key",
+    resave: false,
+    saveUninitialized: true,
+  }),
+);
 
-// // Auth0 configuration
-// const authConfig = {
-//   authRequired: false,
-//   auth0Logout: true,
-//   secret: process.env.AUTH0_SECRET,
-//   baseURL: `http://localhost:${PORT}`,
-//   clientID: process.env.AUTH0_CLIENT_ID,
-//   issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
-// };
+// Auth0 configuration
+const authConfig = {
+  authRequired: false,
+  auth0Logout: true,
+  secret: process.env.AUTH0_SECRET,
+  baseURL: `http://localhost:${PORT}`,
+  clientID: process.env.AUTH0_CLIENT_ID,
+  issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
+};
 
 // app.use(auth(authConfig));
 require("./db/conn");
@@ -96,40 +96,6 @@ app.get("/api/protected", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
-
-/*
-app.get("/profile", (req, res) => {
-  res.send(req.oidc.isAuthenticated() ? req.oidc.user : "Not logged in");
-});
-
-app.get("/api/protected", (req, res) => {
-  if (req.oidc.isAuthenticated()) {
-    res.json({ message: "This is protected data." });
-  } else {
-    res.status(401).json({ error: "Unauthorized" });
-  }
-});
-
-
-app.get("/profile", async (req, res) => {
-  if (!req.oidc.isAuthenticated()) return res.status(401).send("Not logged in");
-
-//   const authUser = req.oidc.user;
-
-//   try {
-//     let user = await User.findOne({ email: authUser.email });
-//     if (!user) {
-//       user = await User.create({
-//         email: authUser.email,
-//         name: authUser.name,
-//         picture: authUser.picture,
-//       });
-//     }
-//     res.json(user);
-//   } catch (err) {
-//     res.status(500).send("Error fetching user.");
-//   }
-// });
 
 // --- Spotify Auth Routes ---
 
@@ -217,4 +183,4 @@ app.get("/play", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);
 });
-*/
+
