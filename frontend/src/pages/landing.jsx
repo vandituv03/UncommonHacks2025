@@ -268,11 +268,11 @@ const Landing = () => {
   };
 
   const handleLogin = () => {
-    window.location.href = '/app';
+    window.location.href = '/home';
   };
 
   const handleOpenApp = () => {
-    window.location.href = '/app';
+    window.location.href = '/home';
   };
 
   return (
