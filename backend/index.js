@@ -52,8 +52,23 @@ const authConfig = {
 // app.use(auth(authConfig));
 require("./db/conn");
 
+app.use(
+  auth({
+    authRequired: false,
+    auth0Logout: true,
+    secret: process.env.AUTH0_SECRET,
+    baseURL: "http://localhost:3000",
+    clientID: process.env.AUTH0_CLIENT_ID,
+    issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
+  }),
+);
+
 // Routes
 app.get("/", (req, res) => {
+  if (req.oidc.isAuthenticated()) {
+    // ✅ Redirect to the frontend app's landing page
+    return res.redirect("http://localhost:5173");
+  }
   res.send('<a href="/login">Login</a>');
 });
 
