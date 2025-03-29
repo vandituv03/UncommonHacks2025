@@ -1,0 +1,21 @@
+.card-bg {
+    background-color: #1e1e2f;
+    border-radius: 1rem;
+  }
+  
+  .hero-text {
+    text-shadow: 0 0 10px #c084fc, 0 0 20px #c084fc;
+  }
+  
+  .grid-icons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 4px;
+    padding: 4px;
+    background-color: #222;
+    border-radius: 0.5rem;
+    width: 5rem;
+    height: 5rem;
+  }
+  

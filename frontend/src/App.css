@@ -1,8 +1,8 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 25;
 }
 
 .logo {
@@ -33,10 +33,23 @@
   }
 }
 
-.card {
+/* .card {
   padding: 2em;
 }
 
 .read-the-docs {
   color: #888;
 }
+
+.glow-text {
+  text-shadow: 0 0 10px #a855f7, 0 0 20px #a855f7;
+}
+
+.hero-text {
+  text-shadow: 0 0 10px #c084fc, 0 0 20px #c084fc;
+}
+
+.card-bg {
+  background-color: #1e1e2f;
+  border-radius: 1rem;
+} */
