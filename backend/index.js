@@ -10,7 +10,7 @@ const User = require("./model/UserSchema");
 
 // Initialize Express
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
 // MongoDB connection
 require("./db/conn"); // Make sure this connects properly
@@ -183,4 +183,3 @@ app.get("/play", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);
 });
-
