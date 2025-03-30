@@ -213,14 +213,23 @@ app.get("/spotifycallback", async (req, res) => {
       },
       (expiresIn / 2) * 1000,
     ); // refresh before expiry
-
-    res.send("✅ Spotify authorization successful. You can now play music.");
+    return res.redirect("http://localhost:5173/home");
   } catch (err) {
     console.error("🚫 Token exchange error:", {
       message: err.message,
       body: err.body,
     });
     res.status(400).send("Error getting Spotify access token");
+  }
+});
+
+app.get("/spotify-status", (req, res) => {
+  const session = spotifySession.get();
+
+  if (session?.accessToken) {
+    return res.json({ loggedIn: true });
+  } else {
+    return res.json({ loggedIn: false });
   }
 });
 

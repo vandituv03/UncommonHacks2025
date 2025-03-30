@@ -4,6 +4,7 @@ import './homepage.css';
 import logo from '../assets/logo.png';
 
 function Home() {
+  const [spotifyLoggedIn, setSpotifyLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [points, setPoints] = useState(1250);
   const [likes, setLikes] = useState(128);
@@ -16,6 +17,7 @@ function Home() {
 
   useEffect(() => {
     initThreeScene();
+    fetchSpotifyStatus();
     fetchUser();
   }, []);
 
@@ -163,6 +165,22 @@ function Home() {
     }
   };
 
+  const fetchSpotifyStatus = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/spotify-status", {
+        method: "GET",
+        credentials: "include",
+      });
+  
+      const data = await res.json();
+      console.log(data);
+      setSpotifyLoggedIn(data.loggedIn);
+      if (data.loggedIn) console.log("true");
+    } catch (err) {
+      console.error("❌ Error checking Spotify status:", err);
+    }
+  };
+
   const handleLikeClick = () => setLikes(likes + 1);
 
   const handleClaimBonus = () => {
@@ -223,15 +241,18 @@ function Home() {
             <button disabled>Loading...</button>
           )}
 
-          {user?.ifAdmin && (
-            <button
-              onClick={() => {
+        {user?.ifAdmin && (
+          <button
+            onClick={() => {
+              if (!spotifyLoggedIn) {
                 window.location.href = 'http://localhost:3000/spotifylogin';
-              }}
-            >
-              <i className="bi bi-shield-lock" /> Login to Spotify
-            </button>
-          )}
+              }
+            }}
+            disabled={spotifyLoggedIn}
+          >
+            <i className="bi bi-shield-lock" /> {spotifyLoggedIn ? "Device Connected" : "Login to Spotify"}
+          </button>
+        )}
         </div>
       </nav>
 
