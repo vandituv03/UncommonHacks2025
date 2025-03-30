@@ -368,13 +368,45 @@ app.post("/search", async (req, res) => {
 
 // --- Spotify Play ---
 app.get("/play", async (req, res) => {
+  // await ensureSpotifyAccessToken();
+
+  // const { uri } = req.query;
+  // if (!uri) return res.status(400).send("❌ Missing track URI");
+
+  // try {
+  //   // Check for an active device
+  //   const devices = await spotifyApi.getMyDevices();
+  //   const activeDevice = devices.body.devices.find((d) => d.is_active);
+
+  //   if (!activeDevice) {
+  //     return res
+  //       .status(400)
+  //       .send(
+  //         "❌ No active Spotify device found. Open Spotify and play a song first.",
+  //       );
+  //   }
+
+  //   await spotifyApi.play({
+  //     uris: [uri],
+  //     device_id: activeDevice.id,
+  //   });
+
+  //   res.send("▶️ Playback started");
+  // } catch (err) {
+  //   console.error("Play error:", {
+  //     status: err.statusCode,
+  //     message: err.message,
+  //     body: err.body,
+  //   });
+  //   res.status(500).send("Error playing track");
+  // }
+
   await ensureSpotifyAccessToken();
 
-  const { uri } = req.query;
-  if (!uri) return res.status(400).send("❌ Missing track URI");
+  const nextTrack = songQueue.shift(); // Remove and get the first item
+  if (!nextTrack) return res.status(400).send("❌ Queue is empty");
 
   try {
-    // Check for an active device
     const devices = await spotifyApi.getMyDevices();
     const activeDevice = devices.body.devices.find((d) => d.is_active);
 
@@ -397,11 +429,11 @@ app.get("/play", async (req, res) => {
     }
 
     await spotifyApi.play({
-      uris: [uri],
+      uris: [nextTrack.uri],
       device_id: activeDevice.id,
     });
 
-    res.send("playing");
+    res.send(`▶️ Now playing: ${nextTrack.title} by ${nextTrack.artist}`);
   } catch (err) {
     console.error("Play error:", {
       status: err.statusCode,
@@ -410,6 +442,28 @@ app.get("/play", async (req, res) => {
     });
     res.status(500).send("Error playing track");
   }
+
+});
+
+app.get("/gettracks", async (req, res) => {
+  await ensureSpotifyAccessToken();
+
+  const playback = await spotifyApi.getMyCurrentPlayingTrack();
+
+  if (!playback.body || !playback.body.item) {
+    return res
+      .status(400)
+      .send(
+        "❌ No track is currently playing. Please start playback in your Spotify app.",
+      );
+  }
+
+  const seedTrackId = playback.body.item.id;
+  const trackName = playback.body.item.name;
+  const artistName = playback.body.item.artists.map((a) => a.name).join(", ");
+
+  console.log(`🎵 Seed track: ${trackName} (ID: ${seedTrackId})`);
+  res.send({ track: trackName, artist: artistName });
 });
 
 app.get("/gettracks", async (req, res) => {
