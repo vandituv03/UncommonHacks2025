@@ -10,9 +10,14 @@ function Home() {
   const [likes, setLikes] = useState(0);
   const [bonusClaimed, setBonusClaimed] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [notification, setNotification] = useState({ show: false, message: '', type: 'success' });
   const [nowPlaying, setNowPlaying] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
+<<<<<<< HEAD
   const [notification, setNotification] = useState({ show: false, message: '', type: 'success' });
+=======
+  const [songsRequested, setSongsRequested] = useState(0);
+>>>>>>> bc95e43c4fd874e29d2c52d8a5565d893d3dcb31
   const [songQueue, setSongQueue] = useState([
     { title: "Blinding Lights", artist: "The Weeknd", points: 500, user: "user123", likes: 42 },
     { title: "Stay", artist: "The Kid LAROI, Justin Bieber", points: 320, user: "maria55", likes: 18 }
@@ -23,7 +28,22 @@ function Home() {
     fetchSpotifyStatus();
     fetchUser();
     fetchLeaderboard();
+    fetchQueue();
   }, []);
+
+  const showNotification = (message, type = 'success') => {
+    setNotification({ show: true, message, type });
+  };
+
+  const fetchQueue = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/queue");
+      const data = await res.json();
+      setSongQueue(data);
+    } catch (err) {
+      console.error("❌ Error fetching song queue:", err);
+    }
+  };
 
   const fetchLeaderboard = async () => {
     try {
@@ -172,6 +192,7 @@ function Home() {
       const data = await res.json();
       setUser(data);
       setPoints(data.Loyalty_Points || 0);
+      setSongsRequested(data.Total_Bids || 0);
     } catch (err) {
       console.error("❌ Error fetching user profile:", err);
     }
@@ -224,6 +245,11 @@ function Home() {
     }
   }, [spotifyLoggedIn]);
 
+  useEffect(() => {
+    const interval = setInterval(fetchQueue, 10000); // 10 sec
+    return () => clearInterval(interval);
+  }, []);
+
   const handleLikeClick = async () => {
     setPoints(points + 10);
     setLikes(likes + 1);
@@ -263,7 +289,11 @@ function Home() {
     if (!searchTerm.trim()) {
       return showNotification("Please enter a song name!", "error");
     }
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> bc95e43c4fd874e29d2c52d8a5565d893d3dcb31
     try {
       const res = await fetch(`http://localhost:3000/search`, {
         method: 'POST',
@@ -271,13 +301,27 @@ function Home() {
         credentials: 'include',
         body: JSON.stringify({
           search: searchTerm,
+<<<<<<< HEAD
           type: type,
+=======
+          type: type, // 'free' or 'bid'
+          email: user.email, // 👈 Send email
+>>>>>>> bc95e43c4fd874e29d2c52d8a5565d893d3dcb31
         }),
       });
 
       if (!res.ok) throw new Error('Failed to submit request');
       const data = await res.json();
+<<<<<<< HEAD
       showNotification(`🎵 Song ${type === "bid" ? "bid" : "requested"} successfully!`, "success");
+=======
+      console.log("✅ Song request submitted:", data);
+      showNotification(`🎵 Song ${type === "bid" ? "bid" : "requested"} successfully!`, "success");
+      await fetchUser();
+      setSearchTerm("");   // clear the input box
+      fetchQueue();        // refresh queue from backend
+
+>>>>>>> bc95e43c4fd874e29d2c52d8a5565d893d3dcb31
     } catch (err) {
       console.error("❌ Error submitting song request:", err);
       showNotification("Failed to submit song request", "error");
@@ -288,7 +332,11 @@ function Home() {
     <>
       <canvas className="three-canvas" />
       <div className="background-glow-overlay" />
+<<<<<<< HEAD
 
+=======
+      
+>>>>>>> bc95e43c4fd874e29d2c52d8a5565d893d3dcb31
       {notification.show && (
         <div className={`center-toast ${notification.type}`}>
           <div className="toast-message">
@@ -388,19 +436,13 @@ function Home() {
               )}
 
             <section className="queue-box">
-              <h2 className="neon-text">Queue <span className="timer">Next song plays in: 2:15</span></h2>
+              <h2 className="neon-text">Up Next...</h2>
               <div className="queue-list">
                 {songQueue.map((song, idx) => (
                   <div className="song-card" key={idx}>
-                    <img src={`https://source.unsplash.com/random/48x48?sig=${idx}`} alt={song.title} />
                     <div className="song-details">
                       <h4>{song.title}</h4>
                       <p>{song.artist}</p>
-                    </div>
-                    <div className="right-info">
-                      <p className="points">{song.points} pts</p>
-                      <p>@{song.user}</p>
-                      <div><i className="bi bi-heart-fill text-red-400" /> {song.likes}</div>
                     </div>
                     {user?.ifAdmin && (
                       <i
@@ -420,7 +462,13 @@ function Home() {
               <h2 className="neon-text">Your Stats</h2>
               <div className="stats-content">
                 <p>Total Points: <span className="value">{points}</span></p>
+<<<<<<< HEAD
                 <p>Songs Submitted: <span className="value">23</span></p>
+=======
+                <p>Songs Submitted: <span className="value">{songsRequested}</span></p>
+                <p>Likes Received: <span className="value">10</span></p>
+                <p>Check-in Streak: <span className="value">1 day 🔥</span></p>
+>>>>>>> bc95e43c4fd874e29d2c52d8a5565d893d3dcb31
               </div>
               {!bonusClaimed && (
               <button
