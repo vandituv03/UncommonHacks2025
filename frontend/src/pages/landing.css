@@ -9,6 +9,18 @@
   opacity: 0.5;
 }
 
+.background-glow-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(147, 51, 234, 0.2), transparent 70%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+
 /* === Navbar (Left Logo & Right Login Button) === */
 .navbar {
   background-color: #1e1e2f;
@@ -60,7 +72,7 @@
 .main-content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 5rem 1rem 2rem; /* reduced bottom padding */
+  padding: 5rem 1rem 2rem;
   display: flex;
   flex-direction: column;
   gap: 8rem;
@@ -241,9 +253,10 @@
   transform: scale(1.05);
 }
 
+/* === Footer === */
 .footer {
   background-color: #1e1e2f;
-  height: 4rem; /* same as navbar */
+  height: 4rem;
   display: flex;
   align-items: center;
   padding: 0 1rem;
@@ -288,5 +301,5 @@
 }
 
 .footer-branding {
-  display: none; /* hide WIDE CANVAS or place it inside footer-left if needed */
+  display: none;
 }

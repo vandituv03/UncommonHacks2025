@@ -24,7 +24,6 @@ const Landing = () => {
 
     const particlesGeometry = new THREE.BufferGeometry();
     const particlesCount = 1000;
-
     const positions = new Float32Array(particlesCount * 3);
     const colors = new Float32Array(particlesCount * 3);
 
@@ -51,12 +50,61 @@ const Landing = () => {
     const particles = new THREE.Points(particlesGeometry, particlesMaterial);
     scene.add(particles);
 
+    // Floating Balls
+    const spheres = [];
+    const sphereMaterial = new THREE.MeshStandardMaterial({ color: 0x9333ea, emissive: 0x220044 });
+    for (let i = 0; i < 5; i++) {
+      const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.15, 32, 32), sphereMaterial);
+      sphere.position.set((Math.random() - 0.5) * 6, (Math.random() - 0.5) * 4, (Math.random() - 0.5) * 6);
+      spheres.push(sphere);
+      scene.add(sphere);
+    }
+
+    // Rotating Rings
+    const rings = [];
+    const ringMaterial = new THREE.MeshStandardMaterial({ color: 0xc084fc, wireframe: true });
+    for (let i = 0; i < 3; i++) {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(1 + i * 0.5, 0.02, 16, 100), ringMaterial);
+      ring.rotation.x = Math.random() * Math.PI;
+      ring.rotation.y = Math.random() * Math.PI;
+      ring.position.set(0, 0, -2 + i);
+      rings.push(ring);
+      scene.add(ring);
+    }
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    const pointLight = new THREE.PointLight(0xff00ff, 1, 10);
+    pointLight.position.set(2, 2, 2);
+    scene.add(pointLight);
+
     camera.position.z = 5;
+
+    const mouse = { x: 0, y: 0 };
+    document.addEventListener('mousemove', (event) => {
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    });
 
     const animate = () => {
       requestAnimationFrame(animate);
+
       particles.rotation.x += 0.0005;
       particles.rotation.y += 0.0005;
+
+      spheres.forEach((sphere, index) => {
+        sphere.position.y += Math.sin(Date.now() * 0.001 + index) * 0.001;
+        sphere.rotation.y += 0.002;
+      });
+
+      rings.forEach((ring, index) => {
+        ring.rotation.x += 0.001 + index * 0.0005;
+        ring.rotation.y += 0.001;
+      });
+
+      camera.position.x += (mouse.x * 0.5 - camera.position.x) * 0.05;
+      camera.position.y += (mouse.y * 0.5 - camera.position.y) * 0.05;
+      camera.lookAt(scene.position);
+
       renderer.render(scene, camera);
     };
 
@@ -79,13 +127,16 @@ const Landing = () => {
 
   return (
     <>
+      {/* 🌌 Background layers */}
       <canvas className="three-canvas" />
+      <div className="background-glow-overlay" />
 
+      {/* 🧭 Navbar */}
       <nav className="navbar">
         <div className="navbar-container">
           <div className="navbar-logo">
             <i className="bi bi-music-note-beamed" />
-            <h1>JukeBid+Loyal</h1>
+            <h1>JukeBid</h1>
           </div>
           <Button onClick={handleLogin} className="login-button">
             <i className="bi bi-person-circle" />
@@ -94,6 +145,7 @@ const Landing = () => {
         </div>
       </nav>
 
+      {/* 🎯 Main Content */}
       <main className="main-content">
         <div className="hero-section">
           <div className="hero-text">
@@ -133,22 +185,22 @@ const Landing = () => {
 
         <section className="cta-section">
           <h2>Ready to Get Started?</h2>
-          <p>Join JukeBid+Loyal today and transform your music experience.</p>
+          <p>Join JukeBid today and transform your music experience.</p>
           <Button onClick={handleOpenApp} className="cta-button">
-            Open JukeBid+Loyal App
+            Open JukeBid App
           </Button>
         </section>
       </main>
 
-      
+      {/* 🦶 Footer */}
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-left">
             <i className="bi bi-music-note-beamed" />
-            <span>JukeBid+Loyal</span>
+            <span>JukeBid</span>
           </div>
           <div className="footer-center">
-            <p>© 2023 JukeBid+Loyal. All rights reserved.</p>
+            <p>© 2023 JukeBid. All rights reserved.</p>
           </div>
           <div className="footer-right">
             <a href="#"><i className="bi bi-twitter" /></a>
@@ -157,7 +209,6 @@ const Landing = () => {
             <a href="#"><i className="bi bi-github" /></a>
           </div>
         </div>
-        
       </footer>
     </>
   );
