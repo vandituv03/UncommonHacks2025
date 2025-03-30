@@ -10,8 +10,10 @@ function Home() {
   const [likes, setLikes] = useState(0);
   const [bonusClaimed, setBonusClaimed] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [notification, setNotification] = useState({ show: false, message: '', type: 'success' });
   const [nowPlaying, setNowPlaying] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
+  const [songsRequested, setSongsRequested] = useState(0);
   const [songQueue, setSongQueue] = useState([
     { title: "Blinding Lights", artist: "The Weeknd", points: 500, user: "user123", likes: 42 },
     { title: "Stay", artist: "The Kid LAROI, Justin Bieber", points: 320, user: "maria55", likes: 18 }
@@ -22,7 +24,22 @@ function Home() {
     fetchSpotifyStatus();
     fetchUser();
     fetchLeaderboard();
+    fetchQueue();
   }, []);
+
+  const showNotification = (message, type = 'success') => {
+    setNotification({ show: true, message, type });
+  };
+
+  const fetchQueue = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/queue");
+      const data = await res.json();
+      setSongQueue(data);
+    } catch (err) {
+      console.error("❌ Error fetching song queue:", err);
+    }
+  };
 
   const fetchLeaderboard = async () => {
     try {
@@ -173,6 +190,7 @@ function Home() {
       const data = await res.json();
       setUser(data);
       setPoints(data.Loyalty_Points || 0);
+      setSongsRequested(data.Total_Bids || 0);
     } catch (err) {
       console.error("❌ Error fetching user profile:", err);
     }
@@ -225,6 +243,11 @@ function Home() {
     }
   }, [spotifyLoggedIn]);
 
+  useEffect(() => {
+    const interval = setInterval(fetchQueue, 10000); // 10 sec
+    return () => clearInterval(interval);
+  }, []);
+
   const handleLikeClick = async () => {
     setPoints(points + 10);
     setLikes(likes + 1);
@@ -251,16 +274,20 @@ function Home() {
   const handleClaimBonus = () => {
     setPoints(points + 100);
     setBonusClaimed(true);
+    showNotification("🎁 Daily Bonus Claimed! +100 Points", "success");
   };
 
   const handleDeleteSong = (index) => {
     if (!user?.ifAdmin) return;
     console.log(`Deleting song at index: ${index}`);
     setSongQueue(prev => prev.filter((_, idx) => idx !== index));
+    showNotification("🗑️ Song deleted from queue", "success");
   };
 
   const handleSongRequest = async (type) => {
-    if (!searchTerm.trim()) return alert("Please enter a song name!");
+    if (!searchTerm.trim()) {
+      return showNotification("Please enter a song name!", "error");
+    }
   
     try {
       const res = await fetch(`http://localhost:3000/search`, {
@@ -270,16 +297,21 @@ function Home() {
         body: JSON.stringify({
           search: searchTerm,
           type: type, // 'free' or 'bid'
+          email: user.email, // 👈 Send email
         }),
       });
   
       if (!res.ok) throw new Error('Failed to submit request');
       const data = await res.json();
       console.log("✅ Song request submitted:", data);
-      alert(`Song ${type === "bid" ? "bid" : "requested for free"} successfully!`);
+      showNotification(`🎵 Song ${type === "bid" ? "bid" : "requested"} successfully!`, "success");
+      await fetchUser();
+      setSearchTerm("");   // clear the input box
+      fetchQueue();        // refresh queue from backend
+
     } catch (err) {
       console.error("❌ Error submitting song request:", err);
-      alert("Failed to submit song request");
+      showNotification("Failed to submit song request", "error");
     }
   };
   
@@ -288,6 +320,22 @@ function Home() {
     <>
       <canvas className="three-canvas" />
       <div className="background-glow-overlay" />
+      
+      {notification.show && (
+        <div className={`center-toast ${notification.type}`}>
+          <div className="toast-message">
+            <i className={`bi ${notification.type === 'success' ? 'bi-check-circle-fill' : 'bi-x-circle-fill'}`} />
+            <span>{notification.message}</span>
+          </div>
+          <button
+            className="secondary-btn toast-dismiss-btn"
+            onClick={() => setNotification({ ...notification, show: false })}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
       <nav className="navbar">
         <div className="navbar-logo-wrapper">
           <img src={logo} alt="JukeBid Logo" className="logo-image" />
@@ -385,19 +433,13 @@ function Home() {
               )}
 
             <section className="queue-box">
-              <h2 className="neon-text">Queue <span className="timer">Next song plays in: 2:15</span></h2>
+              <h2 className="neon-text">Up Next...</h2>
               <div className="queue-list">
                 {songQueue.map((song, idx) => (
                   <div className="song-card" key={idx}>
-                    <img src={`https://source.unsplash.com/random/48x48?sig=${idx}`} alt={song.title} />
                     <div className="song-details">
                       <h4>{song.title}</h4>
                       <p>{song.artist}</p>
-                    </div>
-                    <div className="right-info">
-                      <p className="points">{song.points} pts</p>
-                      <p>@{song.user}</p>
-                      <div><i className="bi bi-heart-fill text-red-400" /> {song.likes}</div>
                     </div>
                     {user?.ifAdmin && (
                       <i
@@ -417,9 +459,9 @@ function Home() {
               <h2 className="neon-text">Your Stats</h2>
               <div className="stats-content">
                 <p>Total Points: <span className="value">{points}</span></p>
-                <p>Songs Submitted: <span className="value">23</span></p>
-                <p>Likes Received: <span className="value">156</span></p>
-                <p>Check-in Streak: <span className="value">5 days 🔥</span></p>
+                <p>Songs Submitted: <span className="value">{songsRequested}</span></p>
+                <p>Likes Received: <span className="value">10</span></p>
+                <p>Check-in Streak: <span className="value">1 day 🔥</span></p>
               </div>
               {!bonusClaimed && (
               <button
