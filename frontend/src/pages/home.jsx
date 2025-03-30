@@ -12,6 +12,7 @@ function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const [nowPlaying, setNowPlaying] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
+  const [songsRequested, setSongsRequested] = useState(0);
   const [songQueue, setSongQueue] = useState([
     { title: "Blinding Lights", artist: "The Weeknd", points: 500, user: "user123", likes: 42 },
     { title: "Stay", artist: "The Kid LAROI, Justin Bieber", points: 320, user: "maria55", likes: 18 }
@@ -173,6 +174,7 @@ function Home() {
       const data = await res.json();
       setUser(data);
       setPoints(data.Loyalty_Points || 0);
+      setSongsRequested(data.Total_Bids || 0);
     } catch (err) {
       console.error("❌ Error fetching user profile:", err);
     }
@@ -225,6 +227,7 @@ function Home() {
     }
   }, [spotifyLoggedIn]);
 
+
   const handleLikeClick = async () => {
     setPoints(points + 10);
     setLikes(likes + 1);
@@ -270,6 +273,7 @@ function Home() {
         body: JSON.stringify({
           search: searchTerm,
           type: type, // 'free' or 'bid'
+          email: user.email, // 👈 Send email
         }),
       });
   
@@ -277,6 +281,7 @@ function Home() {
       const data = await res.json();
       console.log("✅ Song request submitted:", data);
       alert(`Song ${type === "bid" ? "bid" : "requested for free"} successfully!`);
+      await fetchUser();
     } catch (err) {
       console.error("❌ Error submitting song request:", err);
       alert("Failed to submit song request");
@@ -417,9 +422,9 @@ function Home() {
               <h2 className="neon-text">Your Stats</h2>
               <div className="stats-content">
                 <p>Total Points: <span className="value">{points}</span></p>
-                <p>Songs Submitted: <span className="value">23</span></p>
-                <p>Likes Received: <span className="value">156</span></p>
-                <p>Check-in Streak: <span className="value">5 days 🔥</span></p>
+                <p>Songs Submitted: <span className="value">{songsRequested}</span></p>
+                <p>Likes Received: <span className="value">10</span></p>
+                <p>Check-in Streak: <span className="value">1 day 🔥</span></p>
               </div>
               {!bonusClaimed && (
               <button

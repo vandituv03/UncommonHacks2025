@@ -132,6 +132,7 @@ app.get("/profile", async (req, res) => {
         name: authUser.name,
         email: authUser.email,
         picture: authUser.picture,
+        Total_Bids: user.Total_Bids,
         Loyalty_Points: 100,
       });
       console.log("New user created:", user);
@@ -303,24 +304,41 @@ app.get("/spotify-status", (req, res) => {
 app.post("/search", async (req, res) => {
   await ensureSpotifyAccessToken();
 
-  const { search, type } = req.body;
+  const { search, type, email } = req.body;
 
-  if (!search) {
+  if (!search || !email) {
     return res
       .status(400)
-      .send("❌ 'search' field is required in the request body");
+      .send("❌ 'search' and 'email' fields are required in the request body");
   }
 
   try {
     const data = await spotifyApi.searchTracks(search);
+
     if (data.body.tracks.items.length === 0) {
       return res.status(404).send("No tracks found");
     }
 
     const trackUri = data.body.tracks.items[0].uri;
-
-    // Log the type for debugging (optional)
     console.log(`🔍 Search result for type '${type}':`, trackUri);
+
+    // 🔼 Increment Total_Bids for this user
+    if (type === "bid" || type === "free") {
+      await User.findOneAndUpdate(
+        { email },
+        { $inc: { Total_Bids: 1 } },
+        { new: true },
+      );
+    }
+
+    if (type === "bid") {
+      const bidCost = 100;
+      await User.findOneAndUpdate(
+        { email },
+        { $inc: { Loyalty_Points: -bidCost } },
+        { new: true },
+      );
+    }
 
     res.send({ uri: trackUri, type });
   } catch (err) {
