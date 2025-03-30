@@ -4,7 +4,7 @@ import './homepage.css';
 import logo from '../assets/logo.png';
 
 function Home() {
-  const [user, setUser] = useState(null); // ✅ ADD THIS LINE
+  const [user, setUser] = useState(null);
   const [points, setPoints] = useState(1250);
   const [likes, setLikes] = useState(128);
   const [bonusClaimed, setBonusClaimed] = useState(false);
@@ -151,9 +151,9 @@ function Home() {
     try {
       const res = await fetch('http://localhost:3000/profile', {
         method: 'GET',
-        credentials: 'include', // very important for session cookie
+        credentials: 'include',
       });
-  
+
       if (!res.ok) throw new Error('Failed to fetch user');
       const data = await res.json();
       setUser(data);
@@ -164,10 +164,42 @@ function Home() {
   };
 
   const handleLikeClick = () => setLikes(likes + 1);
+
   const handleClaimBonus = () => {
     setPoints(points + 100);
     setBonusClaimed(true);
   };
+
+  const handleDeleteSong = (index) => {
+    if (!user?.ifAdmin) return;
+    console.log(`Deleting song at index: ${index}`);
+    setSongQueue(prev => prev.filter((_, idx) => idx !== index));
+  };
+
+  const handleSongRequest = async (type) => {
+    if (!searchTerm.trim()) return alert("Please enter a song name!");
+  
+    try {
+      const res = await fetch(`http://localhost:3000/search`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          search: searchTerm,
+          type: type, // 'free' or 'bid'
+        }),
+      });
+  
+      if (!res.ok) throw new Error('Failed to submit request');
+      const data = await res.json();
+      console.log("✅ Song request submitted:", data);
+      alert(`Song ${type === "bid" ? "bid" : "requested for free"} successfully!`);
+    } catch (err) {
+      console.error("❌ Error submitting song request:", err);
+      alert("Failed to submit song request");
+    }
+  };
+  
 
   return (
     <>
@@ -183,34 +215,59 @@ function Home() {
             <i className="bi bi-coin" /> {points} points
           </span>
           {user ? (
-          <button>
-            <i className="bi bi-person-circle" style={{ fontSize: 24, marginRight: 8 }}></i>
-            {user.name}
-          </button>
-        ) : (
-          <button disabled>Loading...</button>
-        )}
-          <button><i className="bi bi-shield-lock" /> Admin</button>
+            <button>
+              <i className="bi bi-person-circle" style={{ fontSize: 24, marginRight: 8 }}></i>
+              {user.name}
+            </button>
+          ) : (
+            <button disabled>Loading...</button>
+          )}
+
+          {user?.ifAdmin && (
+            <button
+              onClick={() => {
+                window.location.href = 'http://localhost:3000/spotifylogin';
+              }}
+            >
+              <i className="bi bi-shield-lock" /> Login to Spotify
+            </button>
+          )}
         </div>
       </nav>
 
       <main className="main-content">
-        <section className="search-box">
-          <input
-            type="text"
-            className="input"
-            placeholder="Search for a song..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <div className="search-buttons">
-            <button className="primary-btn"><i className="bi bi-music-note" /> Request for Free</button>
-            <button className="secondary-btn"><i className="bi bi-lightning" /> Bid with Points (Min: 100)</button>
-          </div>
-          <p className="note-text">
-            Popular songs require higher bids - <strong>current minimum: 100 points</strong>
-          </p>
-        </section>
+
+          <section className="search-box">
+            <input
+              type="text"
+              className="input"
+              placeholder="Search for a song..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+
+            <div className="search-buttons">
+              <button
+                className="primary-btn"
+                onClick={() => handleSongRequest("free")}
+              >
+                <i className="bi bi-music-note" /> Request for Free
+              </button>
+
+              <button
+                className="secondary-btn"
+                onClick={() => handleSongRequest("bid")}
+              >
+                <i className="bi bi-lightning" /> Bid with Points (Min: 100)
+              </button>
+            </div>
+
+            <p className="note-text">
+              Popular songs require higher bids - <strong>current minimum: 100 points</strong>
+            </p>
+          </section>
+
+
 
         <div className="card-grid">
           <div className="column">
@@ -246,7 +303,13 @@ function Home() {
                       <p>@{song.user}</p>
                       <div><i className="bi bi-heart-fill text-red-400" /> {song.likes}</div>
                     </div>
-                    <i className="bi bi-trash delete-icon"></i>
+                    {user?.ifAdmin && (
+                      <i
+                        className="bi bi-trash delete-icon"
+                        onClick={() => handleDeleteSong(idx)}
+                        style={{ cursor: 'pointer' }}
+                      ></i>
+                    )}
                   </div>
                 ))}
               </div>
