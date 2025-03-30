@@ -16,6 +16,8 @@ const openai = new OPENAI(process.env.OPENAI_API_KEY);
 
 require("./db/conn");
 
+let lastSearchedTrackName = null;
+
 // Spotify API setup
 const spotifyApi = new SpotifyWebApi({
   clientId: process.env.SPOTIFY_CLIENT_ID,
@@ -274,57 +276,88 @@ app.get("/spotify-status", (req, res) => {
 });
 
 // --- Spotify Search ---
-// app.get("/search", async (req, res) => {
-//   await ensureSpotifyAccessToken();
 
-//   const { q } = req.query;
-
-//   if (!q) return res.status(400).send("❌ Query param ?q is required");
-
-//   try {
-//     const data = await spotifyApi.searchTracks(q);
-//     if (data.body.tracks.items.length === 0) {
-//       return res.status(404).send("No tracks found");
-//     }
-
-//     const trackUri = data.body.tracks.items[0].uri;
-//     res.send({ uri: trackUri });
-//     console.log("🔍 Search result:", trackUri);
-//   } catch (err) {
-//     console.error("Search error:", {
-//       status: err.statusCode,
-//       message: err.message,
-//       body: err.body,
-//     });
-//     res.status(500).send("Error searching track");
-//   }
-// });
+const {
+  addToLoyaltyQueue,
+  addToFreeQueue,
+  addToRecommendedArray,
+  getFinalQueue,
+} = require("./queue");
 
 app.post("/search", async (req, res) => {
   await ensureSpotifyAccessToken();
 
-  const { search, type } = req.body;
+  const { search, type, points = 100 } = req.body;
 
-  if (!search) {
+  console.log("📥 Received search request:", { search, type, points });
+
+  if (!search || !type) {
+    console.warn("❌ Missing search or type in request");
     return res
       .status(400)
-      .send("❌ 'search' field is required in the request body");
+      .send("❌ 'search' and 'type' fields are required in the request body");
   }
 
   try {
-    const data = await spotifyApi.searchTracks(search);
+    const formattedSearch = search.trim().replace(/\s+/g, "%20");
+    console.log("🔍 Formatted search query for Spotify:", formattedSearch);
+
+    const data = await spotifyApi.searchTracks(formattedSearch);
+
     if (data.body.tracks.items.length === 0) {
-      return res.status(404).send("No tracks found");
+      console.warn("⚠️ No tracks found for:", search);
+      return res.status(404).send("❌ No tracks found");
     }
 
-    const trackUri = data.body.tracks.items[0].uri;
+    const track = data.body.tracks.items[0];
+    lastSearchedTrackName = track.name; // Store the last searched track name
 
-    // Log the type for debugging (optional)
-    console.log(`🔍 Search result for type '${type}':`, trackUri);
+    const songObj = {
+      title: track.name,
+      artist: track.artists.map((a) => a.name).join(", "),
+    };
 
-    res.send({ uri: trackUri, type });
+    console.log("🎵 Track found:", songObj);
+
+    // Add to the appropriate queue
+    if (type === "bid") {
+      if (typeof points !== "number") {
+        console.warn("⚠️ Points missing for loyalty queue");
+        return res
+          .status(400)
+          .send("❌ 'points' must be a number for loyalty queue");
+      }
+      addToLoyaltyQueue(songObj, points);
+      console.log(`📦 Added to loyalty queue with ${points} points`);
+    } else if (type === "free") {
+      addToFreeQueue(songObj);
+      console.log("📦 Added to free queue");
+    } else if (type === "recommended") {
+      addToRecommendedArray(songObj);
+      console.log("📦 Added to recommended array");
+    } else {
+      console.warn("❌ Invalid type:", type);
+      return res
+        .status(400)
+        .send("❌ Invalid type (use loyalty, free, or recommended)");
+    }
+
+    // ✅ Rebuild and log final queue
+    const finalQueue = getFinalQueue();
+    console.log("🎶 Final Playback Queue:");
+    console.log(finalQueue); // nicely formatted output
+
+    // ✅ Send it back to frontend
+    res.send({
+      status: "success",
+      uri: track.uri,
+      added: songObj,
+      queue: type,
+      ...(type === "loyalty" ? { points } : {}),
+      finalQueue,
+    });
   } catch (err) {
-    console.error("Search error:", {
+    console.error("🚨 Search error:", {
       status: err.statusCode,
       message: err.message,
       body: err.body,
@@ -332,6 +365,86 @@ app.post("/search", async (req, res) => {
     res.status(500).send("Error searching track");
   }
 });
+
+/*
+app.post("/search", async (req, res) => {
+  await ensureSpotifyAccessToken();
+
+  const { search, type, points } = req.body;
+
+  console.log("📥 Received search request:", { search, type, points });
+
+  if (!search || !type) {
+    console.warn("❌ Missing search or type in request");
+    return res
+      .status(400)
+      .send("❌ 'search' and 'type' fields are required in the request body");
+  }
+
+  try {
+    const formattedSearch = search.trim().replace(/\s+/g, "%20");
+    console.log("🔍 Formatted search query for Spotify:", formattedSearch);
+
+    const data = await spotifyApi.searchTracks(formattedSearch);
+
+    if (data.body.tracks.items.length === 0) {
+      console.warn("⚠️ No tracks found for:", search);
+      return res.status(404).send("❌ No tracks found");
+    }
+
+    const track = data.body.tracks.items[0];
+    const songObj = {
+      title: track.name,
+      artist: track.artists.map((a) => a.name).join(", "),
+    };
+
+    console.log("🎵 Track found:", songObj);
+
+    // Add to the appropriate queue
+    if (type === "bid") {
+      if (typeof points !== "number") {
+        console.warn("⚠️ Points missing for loyalty queue");
+        return res
+          .status(400)
+          .send("❌ 'points' must be a number for loyalty queue");
+      }
+      addToLoyaltyQueue(songObj, 100);
+      console.log(`📦 Added to loyalty queue with 100 points`);
+
+      console.log(addMultipleToRecommendedArray());
+    } else if (type === "free") {
+      addToFreeQueue(songObj);
+      console.log("📦 Added to free queue");
+      console.log(addMultipleToRecommendedArray());
+    } else if (type === "recommended") {
+      addToRecommendedArray(songObj);
+      console.log("📦 Added to recommended array");
+      console.log(addMultipleToRecommendedArray());
+    } else {
+      console.warn("❌ Invalid type:", type);
+      return res
+        .status(400)
+        .send("❌ Invalid type (use loyalty, free, or recommended)");
+    }
+
+    // Send back the result
+    res.send({
+      status: "success",
+      uri: track.uri,
+      added: songObj,
+      queue: type,
+      ...(type === "loyalty" ? { points } : {}),
+    });
+  } catch (err) {
+    console.error("🚨 Search error:", {
+      status: err.statusCode,
+      message: err.message,
+      body: err.body,
+    });
+    res.status(500).send("Error searching track");
+  }
+});
+*/
 
 // --- Spotify Play ---
 app.get("/play", async (req, res) => {
@@ -401,23 +514,27 @@ app.get("/gettracks", async (req, res) => {
 });
 
 // --- Spotify Recommendations ---
+
 app.get("/recommendations", async (req, res) => {
   await ensureSpotifyAccessToken();
 
   try {
-    // const playback = await spotifyApi.getMyCurrentPlayingTrack();
+    const playback = await spotifyApi.getMyCurrentPlayingTrack();
 
-    // if (!playback.body || !playback.body.item) {
-    //   return res.status(400).send("❌ No track is currently playing. Please start playback in your Spotify app.");
-    // }
+    if (!playback.body || !playback.body.item) {
+      return res
+        .status(400)
+        .send(
+          "❌ No track is currently playing. Please start playback in your Spotify app.",
+        );
+    }
 
-    // const seedTrackId = playback.body.item.id;
-    // const trackName = playback.body.item.name;
-    // const artistName = playback.body.item.artists.map((a) => a.name).join(", ");
+    const seedTrackId = playback.body.item.id;
+    const trackName = playback.body.item.name;
 
-    // console.log(`🎵 Seed track: ${trackName} (ID: ${seedTrackId})`);
+    console.log(`🎵 Seed track: ${trackName} (ID: ${seedTrackId})`);
 
-    trackName = "One Dance";
+    //    trackName = "One Dance";
 
     try {
       const response = await openai.chat.completions.create({
