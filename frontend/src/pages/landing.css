@@ -6,9 +6,77 @@
   width: 100vw;
   height: 100vh;
   z-index: -1;
-  
 }
 
+/* === Logo Image with Optional Blur === */
+.navbar-logo-wrapper {
+  height: clamp(170px, 9vw, 135px);
+  width: clamp(170px, 9vw, 135px);
+  margin-left: -10px; /* Shift logo slightly left */
+}
+
+.logo-blur {
+  height: clamp(170px, 9vw, 135px);
+  width: clamp(170px, 9vw, 135px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 135px;
+  height: 135px;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(20px);
+  opacity: 0.95;
+}
+
+.navbar:hover .logo-image {
+  filter: drop-shadow(0 0 8px #c084fc) drop-shadow(0 0 12px #9333ea);
+  transform: scale(1.08);
+}
+
+.navbar-logo-wrapper:not(.with-blur) .logo-blur {
+  display: none;
+}
+
+/* === Login Button Blur === */
+.button-with-blur {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-blur {
+  position: absolute;
+  top: -20%;
+  left: -20%;
+  width: 140%;
+  height: 140%;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(24px);
+  opacity: 1;
+}
+
+/* === Wave Effect at Top === */
+.navbar-wave {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  z-index: 49;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.navbar-wave svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* === Glow Background === */
 .background-glow-overlay {
   position: fixed;
   top: 0;
@@ -20,16 +88,21 @@
   pointer-events: none;
 }
 
-
-/* === Navbar (Left Logo & Right Login Button) === */
+/* === Navbar === */
 .navbar {
-  background-color: #1e1e2f;
-  box-shadow: 1px 1px rgba(0, 0, 0, 0.3);
+  background-color: transparent;
+  box-shadow: none;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
   padding: 0.25rem 1rem;
   position: fixed;
-  height: 4rem;
+  height: 4.5rem;
   width: 100%;
   z-index: 50;
+}
+
+.navbar:hover {
+  background-color: rgba(30, 30, 47, 0.95);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .navbar-container {
@@ -47,25 +120,36 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #c084fc;
   font-size: 1.25rem;
   font-weight: bold;
+  color: #c084fc;
+  transition: color 0.3s ease, transform 0.3s ease;
+  margin-left: -10px; /* shift logo unit slightly left */
 }
 
-/* Login Button Right-Aligned */
+.navbar:hover .navbar-logo {
+  color: #c084fc;
+  transform: scale(1.05);
+}
+
+/* === Login Button === */
 .login-button {
   border: 1px solid #a855f7;
   padding: 0.5rem 1.25rem;
   color: #d8b4fe;
   border-radius: 9999px;
   background-color: transparent;
-  transition: background 0.2s;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.2s ease;
   font-weight: 600;
   font-size: 1rem;
+  position: relative;
+  z-index: 1;
 }
 
 .login-button:hover {
   background-color: #7e22ce;
+  box-shadow: 0 0 8px #c084fc, 0 0 12px #9333ea;
+  transform: scale(1.05);
 }
 
 /* === Main Content === */

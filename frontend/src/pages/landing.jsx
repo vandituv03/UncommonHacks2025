@@ -2,7 +2,9 @@ import React, { useEffect } from 'react';
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import * as THREE from 'three';
+import ShapeBlur from '../components/ui/ShapeBlur';
 import './landing.css';
+import logo from '../assets/logo.png';
 
 const Landing = () => {
   useEffect(() => {
@@ -50,7 +52,6 @@ const Landing = () => {
     const particles = new THREE.Points(particlesGeometry, particlesMaterial);
     scene.add(particles);
 
-    // Floating Balls
     const spheres = [];
     const sphereMaterial = new THREE.MeshStandardMaterial({ color: 0x9333ea, emissive: 0x220044 });
     for (let i = 0; i < 5; i++) {
@@ -60,7 +61,6 @@ const Landing = () => {
       scene.add(sphere);
     }
 
-    // Rotating Rings
     const rings = [];
     const ringMaterial = new THREE.MeshStandardMaterial({ color: 0xc084fc, wireframe: true });
     for (let i = 0; i < 3; i++) {
@@ -134,16 +134,24 @@ const Landing = () => {
       {/* 🧭 Navbar */}
       <nav className="navbar">
         <div className="navbar-container">
-          <div className="navbar-logo">
-            <i className="bi bi-music-note-beamed" />
-            <h1>JukeBid</h1>
+          <div className="navbar-logo-wrapper with-blur">
+            <ShapeBlur className="logo-blur" />
+            <img src={logo} alt="JukeBid Logo" className="logo-image" />
           </div>
+
           <Button onClick={handleLogin} className="login-button">
             <i className="bi bi-person-circle" />
             Login
           </Button>
         </div>
       </nav>
+
+      {/* 🌊 Top Wave */}
+      <div className="navbar-wave">
+        <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+          <path d="M0,40 C360,80 1080,0 1440,40 L1440,0 L0,0 Z" fill="#9333ea" />
+        </svg>
+      </div>
 
       {/* 🎯 Main Content */}
       <main className="main-content">

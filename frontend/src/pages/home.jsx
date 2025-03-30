@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import * as THREE from 'three';
 import './homepage.css';
+import logo from '../assets/logo.png';
 
 function Home() {
   const [points, setPoints] = useState(1250);
@@ -64,9 +65,9 @@ function Home() {
     <>
       <canvas className="three-canvas" />
       <nav className="navbar">
-        <div className="navbar-logo">
-          <i className="bi bi-music-note-beamed" />
-          <h1>JukeBid+Loyal</h1>
+        <div className="navbar-logo-wrapper">
+          <img src={logo} alt="JukeBid Logo" className="logo-image" />
+          <div className="logo-blur" />
         </div>
         <div className="navbar-buttons">
           <span style={{ color: "#facc15", fontWeight: "bold" }}>
