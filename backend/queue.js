@@ -1,6 +1,6 @@
 // In-memory queues
 const loyalty_queue = []; // [{ song: { title, artist }, points }]
-const free_queue = [];    // [{ title, artist }]
+const free_queue = []; // [{ title, artist }]
 const recommended_array = []; // [{ title, artist }]
 
 // Add to Loyalty Queue (sorted by points, descending)
@@ -53,4 +53,3 @@ module.exports = {
   addToFreeQueue,
   addToRecommendedArray,
 };
-
