@@ -22,7 +22,18 @@ function Home() {
     fetchSpotifyStatus();
     fetchUser();
     fetchLeaderboard();
+    fetchQueue();
   }, []);
+
+  const fetchQueue = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/queue");
+      const data = await res.json();
+      setSongQueue(data);
+    } catch (err) {
+      console.error("❌ Error fetching song queue:", err);
+    }
+  };
 
   const fetchLeaderboard = async () => {
     try {
@@ -225,6 +236,11 @@ function Home() {
     }
   }, [spotifyLoggedIn]);
 
+  useEffect(() => {
+    const interval = setInterval(fetchQueue, 10000); // 10 sec
+    return () => clearInterval(interval);
+  }, []);
+
   const handleLikeClick = async () => {
     setPoints(points + 10);
     setLikes(likes + 1);
@@ -277,6 +293,9 @@ function Home() {
       const data = await res.json();
       console.log("✅ Song request submitted:", data);
       alert(`Song ${type === "bid" ? "bid" : "requested for free"} successfully!`);
+      setSearchTerm("");   // clear the input box
+      fetchQueue();        // refresh queue from backend
+
     } catch (err) {
       console.error("❌ Error submitting song request:", err);
       alert("Failed to submit song request");
@@ -385,19 +404,13 @@ function Home() {
               )}
 
             <section className="queue-box">
-              <h2 className="neon-text">Queue <span className="timer">Next song plays in: 2:15</span></h2>
+              <h2 className="neon-text">Up Next...</h2>
               <div className="queue-list">
                 {songQueue.map((song, idx) => (
                   <div className="song-card" key={idx}>
-                    <img src={`https://source.unsplash.com/random/48x48?sig=${idx}`} alt={song.title} />
                     <div className="song-details">
                       <h4>{song.title}</h4>
                       <p>{song.artist}</p>
-                    </div>
-                    <div className="right-info">
-                      <p className="points">{song.points} pts</p>
-                      <p>@{song.user}</p>
-                      <div><i className="bi bi-heart-fill text-red-400" /> {song.likes}</div>
                     </div>
                     {user?.ifAdmin && (
                       <i

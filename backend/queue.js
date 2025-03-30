@@ -89,6 +89,17 @@ const getFinalQueue = () => {
   return result;
 };
 
+const popNextFromQueue = () => {
+  if (loyalty_queue.length > 0) {
+    return loyalty_queue.shift().song;
+  } else if (free_queue.length > 0) {
+    return free_queue.shift();
+  } else if (recommended_array.length > 0) {
+    return recommended_array.shift();
+  }
+  return null;
+};
+
 // ✅ Export everything
 module.exports = {
   loyalty_queue,
@@ -98,4 +109,5 @@ module.exports = {
   addToFreeQueue,
   addToRecommendedArray,
   getFinalQueue,
+  popNextFromQueue,
 };
