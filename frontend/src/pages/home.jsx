@@ -19,43 +19,133 @@ function Home() {
     fetchUser();
   }, []);
 
-  const initThreeScene = () => {
-    const canvas = document.querySelector('.three-canvas');
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x000000, 0);
-    const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 1000;
-    const positions = new Float32Array(particlesCount * 3);
-    const colors = new Float32Array(particlesCount * 3);
-
-    for (let i = 0; i < particlesCount * 3; i += 3) {
-      positions[i] = (Math.random() - 0.5) * 10;
-      positions[i + 1] = (Math.random() - 0.5) * 10;
-      positions[i + 2] = (Math.random() - 0.5) * 10;
-      colors[i] = Math.random() * 0.5 + 0.5;
-      colors[i + 1] = Math.random() * 0.3;
-      colors[i + 2] = Math.random() * 0.5 + 0.5;
-    }
-
-    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-    const particlesMaterial = new THREE.PointsMaterial({ size: 0.015, transparent: true, opacity: 0.8, vertexColors: true });
-    const particles = new THREE.Points(particlesGeometry, particlesMaterial);
-    scene.add(particles);
-
-    camera.position.z = 5;
-    const animate = () => {
-      requestAnimationFrame(animate);
-      particles.rotation.x += 0.0005;
-      particles.rotation.y += 0.0005;
-      renderer.render(scene, camera);
+  const generateCircleTexture = () => {
+      const size = 64;
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+    
+      const ctx = canvas.getContext('2d');
+      const center = size / 2;
+    
+      ctx.beginPath();
+      ctx.arc(center, center, center, 0, Math.PI * 2);
+      ctx.fillStyle = 'white';
+      ctx.fill();
+    
+      const texture = new THREE.CanvasTexture(canvas);
+      return texture;
     };
-    animate();
-  };
+    
+    const initThreeScene = () => {
+      const canvas = document.querySelector('.three-canvas');
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({
+        canvas,
+        alpha: true,
+        antialias: true
+      });
+  
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setClearColor(0x000000, 0);
+  
+      const particlesGeometry = new THREE.BufferGeometry();
+      const particlesCount = 1000;
+      const positions = new Float32Array(particlesCount * 3);
+      const colors = new Float32Array(particlesCount * 3);
+  
+      for (let i = 0; i < particlesCount * 3; i += 3) {
+        positions[i] = (Math.random() - 0.5) * 10;
+        positions[i + 1] = (Math.random() - 0.5) * 10;
+        positions[i + 2] = (Math.random() - 0.5) * 10;
+  
+        colors[i] = Math.random() * 0.5 + 0.5;
+        colors[i + 1] = Math.random() * 0.3;
+        colors[i + 2] = Math.random() * 0.5 + 0.5;
+      }
+  
+      particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  
+      const circleTexture = generateCircleTexture();
+  
+    const particlesMaterial = new THREE.PointsMaterial({
+      size: 0.05,
+      map: circleTexture,
+      transparent: true,
+      alphaTest: 0.5,       // helps cut off square edges
+      vertexColors: true,
+    });   
+  
+      const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+      scene.add(particles);
+  
+      const spheres = [];
+      const sphereMaterial = new THREE.MeshStandardMaterial({ color: 0x9333ea, emissive: 0x220044 });
+      for (let i = 0; i < 5; i++) {
+        const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.15, 32, 32), sphereMaterial);
+        sphere.position.set((Math.random() - 0.5) * 6, (Math.random() - 0.5) * 4, (Math.random() - 0.5) * 6);
+        spheres.push(sphere);
+        scene.add(sphere);
+      }
+  
+      const rings = [];
+      const ringMaterial = new THREE.MeshStandardMaterial({ color: 0xc084fc, wireframe: true });
+      for (let i = 0; i < 3; i++) {
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(1 + i * 0.5, 0.02, 16, 100), ringMaterial);
+        ring.rotation.x = Math.random() * Math.PI;
+        ring.rotation.y = Math.random() * Math.PI;
+        ring.position.set(0, 0, -2 + i);
+        rings.push(ring);
+        scene.add(ring);
+      }
+  
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      const pointLight = new THREE.PointLight(0xff00ff, 1, 10);
+      pointLight.position.set(2, 2, 2);
+      scene.add(ambientLight);
+      scene.add(pointLight);
+  
+      camera.position.z = 5;
+  
+      const mouse = { x: 0, y: 0 };
+      document.addEventListener('mousemove', (event) => {
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      });
+  
+      const animate = () => {
+        requestAnimationFrame(animate);
+  
+        particles.rotation.x += 0.0005;
+        particles.rotation.y += 0.0005;
+  
+        spheres.forEach((sphere, index) => {
+          sphere.position.y += Math.sin(Date.now() * 0.001 + index) * 0.001;
+          sphere.rotation.y += 0.002;
+        });
+  
+        rings.forEach((ring, index) => {
+          ring.rotation.x += 0.001 + index * 0.0005;
+          ring.rotation.y += 0.001;
+        });
+  
+        camera.position.x += (mouse.x * 0.5 - camera.position.x) * 0.05;
+        camera.position.y += (mouse.y * 0.5 - camera.position.y) * 0.05;
+        camera.lookAt(scene.position);
+  
+        renderer.render(scene, camera);
+      };
+  
+      animate();
+  
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    };
 
   const fetchUser = async () => {
     try {
@@ -114,6 +204,7 @@ function Home() {
   return (
     <>
       <canvas className="three-canvas" />
+      <div className="background-glow-overlay" />
       <nav className="navbar">
         <div className="navbar-logo-wrapper">
           <img src={logo} alt="JukeBid Logo" className="logo-image" />
@@ -125,7 +216,7 @@ function Home() {
           </span>
           {user ? (
             <button>
-              <img src={user.picture} alt={user.name} style={{ width: 30, borderRadius: '50%', marginRight: 8 }} />
+              <i className="bi bi-person-circle" style={{ fontSize: 24, marginRight: 8 }}></i>
               {user.name}
             </button>
           ) : (
@@ -180,20 +271,22 @@ function Home() {
 
         <div className="card-grid">
           <div className="column">
-            <section className="now-playing-box">
-              <h2 className="neon-text">Now Playing</h2>
-              <div className="song-card">
-                <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7" alt="Now Playing" />
-                <div className="song-details">
-                  <h3>Shape of You</h3>
-                  <p>Ed Sheeran</p>
-                  <p className="requested-by">Requested by @alex</p>
-                  <button onClick={handleLikeClick} className="primary-btn">
-                    <i className="bi bi-heart-fill" /> {likes}
-                  </button>
-                </div>
+          <section className="now-playing-box">
+            <h2 className="neon-text">Now Playing</h2>
+            <div className="song-card">
+              <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7" alt="Now Playing" />
+              <div className="song-details">
+                <h3>Shape of You</h3>
+                <p>Ed Sheeran</p>
+                <p className="requested-by">Requested by @alex</p>
               </div>
-            </section>
+              <div className="like-button-wrapper">
+                <button onClick={handleLikeClick} className="primary-btn">
+                  <i className="bi bi-heart-fill" /> {likes}
+                </button>
+              </div>
+            </div>
+          </section>
 
             <section className="queue-box">
               <h2 className="neon-text">Queue <span className="timer">Next song plays in: 2:15</span></h2>

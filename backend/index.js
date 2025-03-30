@@ -84,7 +84,7 @@ function recommendations(generatedContent) {
 // CORS
 app.use(
   cors({
-    origin: "http://localhost:5174", // Change to your frontend port if different
+    origin: "http://localhost:5173", // Change to your frontend port if different
     credentials: true,
   }),
 );
@@ -115,6 +115,7 @@ app.get("/", (req, res) => {
   if (req.oidc.isAuthenticated()) {
     // ✅ Redirect to the frontend app's landing page
     return res.redirect("http://localhost:5174/home");
+>>>>>>> 76beef1bc99f181e2f3b84ccb9bc0a4a490beeff
   }
   res.send('<a href="/login">Login</a>');
 });
