@@ -109,7 +109,7 @@ app.use(
     issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
   }),
 );
-
+app.use(express.json());
 // Home
 app.get("/", (req, res) => {
   if (req.oidc.isAuthenticated()) {
@@ -225,21 +225,55 @@ app.get("/spotifycallback", async (req, res) => {
 });
 
 // --- Spotify Search ---
-app.get("/search", async (req, res) => {
+// app.get("/search", async (req, res) => {
+//   await ensureSpotifyAccessToken();
+
+//   const { q } = req.query;
+
+//   if (!q) return res.status(400).send("❌ Query param ?q is required");
+
+//   try {
+//     const data = await spotifyApi.searchTracks(q);
+//     if (data.body.tracks.items.length === 0) {
+//       return res.status(404).send("No tracks found");
+//     }
+
+//     const trackUri = data.body.tracks.items[0].uri;
+//     res.send({ uri: trackUri });
+//     console.log("🔍 Search result:", trackUri);
+//   } catch (err) {
+//     console.error("Search error:", {
+//       status: err.statusCode,
+//       message: err.message,
+//       body: err.body,
+//     });
+//     res.status(500).send("Error searching track");
+//   }
+// });
+
+app.post("/search", async (req, res) => {
   await ensureSpotifyAccessToken();
 
-  const { q } = req.query;
+  const { search, type } = req.body;
 
-  if (!q) return res.status(400).send("❌ Query param ?q is required");
+  if (!search) {
+    return res
+      .status(400)
+      .send("❌ 'search' field is required in the request body");
+  }
 
   try {
-    const data = await spotifyApi.searchTracks(q);
+    const data = await spotifyApi.searchTracks(search);
     if (data.body.tracks.items.length === 0) {
       return res.status(404).send("No tracks found");
     }
 
     const trackUri = data.body.tracks.items[0].uri;
-    res.send({ uri: trackUri });
+
+    // Log the type for debugging (optional)
+    console.log(`🔍 Search result for type '${type}':`, trackUri);
+
+    res.send({ uri: trackUri, type });
   } catch (err) {
     console.error("Search error:", {
       status: err.statusCode,
