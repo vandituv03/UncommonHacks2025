@@ -172,6 +172,7 @@ function Home() {
   return (
     <>
       <canvas className="three-canvas" />
+      <div className="background-glow-overlay" />
       <nav className="navbar">
         <div className="navbar-logo-wrapper">
           <img src={logo} alt="JukeBid Logo" className="logo-image" />
@@ -183,7 +184,7 @@ function Home() {
           </span>
           {user ? (
           <button>
-            <img src={user.picture} alt={user.name} style={{ width: 30, borderRadius: '50%', marginRight: 8 }} />
+            <i className="bi bi-person-circle" style={{ fontSize: 24, marginRight: 8 }}></i>
             {user.name}
           </button>
         ) : (
@@ -213,20 +214,22 @@ function Home() {
 
         <div className="card-grid">
           <div className="column">
-            <section className="now-playing-box">
-              <h2 className="neon-text">Now Playing</h2>
-              <div className="song-card">
-                <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7" alt="Now Playing" />
-                <div className="song-details">
-                  <h3>Shape of You</h3>
-                  <p>Ed Sheeran</p>
-                  <p className="requested-by">Requested by @alex</p>
-                  <button onClick={handleLikeClick} className="primary-btn">
-                    <i className="bi bi-heart-fill" /> {likes}
-                  </button>
-                </div>
+          <section className="now-playing-box">
+            <h2 className="neon-text">Now Playing</h2>
+            <div className="song-card">
+              <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7" alt="Now Playing" />
+              <div className="song-details">
+                <h3>Shape of You</h3>
+                <p>Ed Sheeran</p>
+                <p className="requested-by">Requested by @alex</p>
               </div>
-            </section>
+              <div className="like-button-wrapper">
+                <button onClick={handleLikeClick} className="primary-btn">
+                  <i className="bi bi-heart-fill" /> {likes}
+                </button>
+              </div>
+            </div>
+          </section>
 
             <section className="queue-box">
               <h2 className="neon-text">Queue <span className="timer">Next song plays in: 2:15</span></h2>

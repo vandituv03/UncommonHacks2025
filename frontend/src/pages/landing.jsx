@@ -61,13 +61,13 @@ const Landing = () => {
 
     const circleTexture = generateCircleTexture();
 
-  const particlesMaterial = new THREE.PointsMaterial({
-    size: 0.05,
-    map: circleTexture,
-    transparent: true,
-    alphaTest: 0.5,       // helps cut off square edges
-    vertexColors: true,
-  });   
+    const particlesMaterial = new THREE.PointsMaterial({
+      size: 0.05,
+      map: circleTexture,
+      transparent: true,
+      alphaTest: 0.5,       // helps cut off square edges
+      vertexColors: true,
+    });   
 
     const particles = new THREE.Points(particlesGeometry, particlesMaterial);
     scene.add(particles);

@@ -112,8 +112,9 @@ body {
 
 .card-grid {
   display: flex;
-  gap: 2rem;
-  padding: 2rem;
+  gap: 5rem;
+  padding-top: 2rem;
+  justify-content: center;
 }
 
 .column {
@@ -242,23 +243,36 @@ body {
 
 .song-card {
   display: flex;
+  align-items: center;
+  justify-content: space-between; /* pushes content apart */
   gap: 1rem;
   padding: 1rem;
   background-color: #2b2b38;
   border-radius: 0.75rem;
+}
+
+.song-details {
+  flex: 1; /* allows it to grow and push the like button to the end */
+}
+
+.like-button-wrapper {
+  display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .song-card img {
   width: 80px;
   height: 80px;
   object-fit: cover;
+  justify-content: center;
   border-radius: 0.5rem;
 }
 
 .song-details h4,
 h3,
 p {
+ 
   margin: 0;
 }
 
@@ -283,6 +297,7 @@ p {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   min-height: 280px; /* adjust as needed */
+
 }
