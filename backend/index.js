@@ -332,12 +332,11 @@ app.post("/search", async (req, res) => {
       .status(400)
       .send("❌ 'search' and 'type' fields are required in the request body");
   }
-  
 
   try {
     const formattedSearch = search.trim().replace(/\s+/g, "%20");
     console.log("🔍 Formatted search query for Spotify:", formattedSearch);
-    
+
     const data = await spotifyApi.searchTracks(formattedSearch);
 
     if (data.body.tracks.items.length === 0) {
@@ -346,6 +345,7 @@ app.post("/search", async (req, res) => {
     }
 
     const track = data.body.tracks.items[0];
+    const trackUri = track.uri;
     lastSearchedTrackName = track.name; // Store the last searched track name
 
     const songObj = {
@@ -371,8 +371,6 @@ app.post("/search", async (req, res) => {
         { new: true },
       );
     }
-
-    res.send({ uri: trackUri, type });
 
     // Add to the appropriate queue
     if (type === "bid") {
@@ -402,10 +400,13 @@ app.post("/search", async (req, res) => {
     console.log("🎶 Final Playback Queue:");
     console.log(finalQueue); // nicely formatted output
 
-    // ✅ Send it back to frontend
-    res.send({
+    const responsePayload = {
+      uri: trackUri,
+      type,
       finalQueue,
-    });
+    };
+
+    res.send(responsePayload);
 
     // console.log(res.data);
   } catch (err) {

@@ -10,6 +10,7 @@ function Home() {
   const [likes, setLikes] = useState(0);
   const [bonusClaimed, setBonusClaimed] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [notification, setNotification] = useState({ show: false, message: '', type: 'success' });
   const [nowPlaying, setNowPlaying] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
   const [songsRequested, setSongsRequested] = useState(0);
@@ -25,6 +26,10 @@ function Home() {
     fetchLeaderboard();
     fetchQueue();
   }, []);
+
+  const showNotification = (message, type = 'success') => {
+    setNotification({ show: true, message, type });
+  };
 
   const fetchQueue = async () => {
     try {
@@ -269,16 +274,20 @@ function Home() {
   const handleClaimBonus = () => {
     setPoints(points + 100);
     setBonusClaimed(true);
+    showNotification("🎁 Daily Bonus Claimed! +100 Points", "success");
   };
 
   const handleDeleteSong = (index) => {
     if (!user?.ifAdmin) return;
     console.log(`Deleting song at index: ${index}`);
     setSongQueue(prev => prev.filter((_, idx) => idx !== index));
+    showNotification("🗑️ Song deleted from queue", "success");
   };
 
   const handleSongRequest = async (type) => {
-    if (!searchTerm.trim()) return alert("Please enter a song name!");
+    if (!searchTerm.trim()) {
+      return showNotification("Please enter a song name!", "error");
+    }
   
     try {
       const res = await fetch(`http://localhost:3000/search`, {
@@ -295,14 +304,14 @@ function Home() {
       if (!res.ok) throw new Error('Failed to submit request');
       const data = await res.json();
       console.log("✅ Song request submitted:", data);
-      alert(`Song ${type === "bid" ? "bid" : "requested for free"} successfully!`);
+      showNotification(`🎵 Song ${type === "bid" ? "bid" : "requested"} successfully!`, "success");
       await fetchUser();
       setSearchTerm("");   // clear the input box
       fetchQueue();        // refresh queue from backend
 
     } catch (err) {
       console.error("❌ Error submitting song request:", err);
-      alert("Failed to submit song request");
+      showNotification("Failed to submit song request", "error");
     }
   };
   
@@ -311,6 +320,22 @@ function Home() {
     <>
       <canvas className="three-canvas" />
       <div className="background-glow-overlay" />
+      
+      {notification.show && (
+        <div className={`center-toast ${notification.type}`}>
+          <div className="toast-message">
+            <i className={`bi ${notification.type === 'success' ? 'bi-check-circle-fill' : 'bi-x-circle-fill'}`} />
+            <span>{notification.message}</span>
+          </div>
+          <button
+            className="secondary-btn toast-dismiss-btn"
+            onClick={() => setNotification({ ...notification, show: false })}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
       <nav className="navbar">
         <div className="navbar-logo-wrapper">
           <img src={logo} alt="JukeBid Logo" className="logo-image" />
