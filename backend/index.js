@@ -166,6 +166,46 @@ app.get("/spotifylogin", (req, res) => {
   res.redirect(spotifyApi.createAuthorizeURL(scopes));
 });
 
+// Adjust path as needed
+app.post("/addpoints", async (req, res) => {
+  const { email, points } = req.body;
+
+  if (!email || typeof points !== "number" || points <= 0) {
+    return res.status(400).send("❌ Invalid request");
+  }
+
+  try {
+    const user = await User.findOneAndUpdate(
+      { email },
+      { $inc: { Loyalty_Points: points } },
+      { new: true },
+    );
+
+    if (!user) {
+      return res.status(404).send("❌ User not found");
+    }
+
+    res.send({ updatedPoints: user.Loyalty_Points });
+  } catch (err) {
+    console.error("❌ Error updating points:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+app.get("/leaderboard", async (req, res) => {
+  try {
+    const topUsers = await User.find({})
+      .sort({ Loyalty_Points: -1 })
+      .limit(5)
+      .select("name email Loyalty_Points"); // select only needed fields
+
+    res.json(topUsers);
+  } catch (err) {
+    console.error("❌ Error fetching leaderboard:", err);
+    res.status(500).send("Server error");
+  }
+});
+
 app.get("/spotifycallback", async (req, res) => {
   const { error, code } = req.query;
 
@@ -313,12 +353,22 @@ app.get("/play", async (req, res) => {
         );
     }
 
+    const playback = await spotifyApi.getMyCurrentPlayingTrack();
+
+    if (!playback.body || !playback.body.item) {
+      return res
+        .status(400)
+        .send(
+          "❌ No track is currently playing. Please start playback in your Spotify app.",
+        );
+    }
+
     await spotifyApi.play({
       uris: [uri],
       device_id: activeDevice.id,
     });
 
-    res.send("▶️ Playback started");
+    res.send("playing");
   } catch (err) {
     console.error("Play error:", {
       status: err.statusCode,
@@ -327,6 +377,27 @@ app.get("/play", async (req, res) => {
     });
     res.status(500).send("Error playing track");
   }
+});
+
+app.get("/gettracks", async (req, res) => {
+  await ensureSpotifyAccessToken();
+
+  const playback = await spotifyApi.getMyCurrentPlayingTrack();
+
+  if (!playback.body || !playback.body.item) {
+    return res
+      .status(400)
+      .send(
+        "❌ No track is currently playing. Please start playback in your Spotify app.",
+      );
+  }
+
+  const seedTrackId = playback.body.item.id;
+  const trackName = playback.body.item.name;
+  const artistName = playback.body.item.artists.map((a) => a.name).join(", ");
+
+  console.log(`🎵 Seed track: ${trackName} (ID: ${seedTrackId})`);
+  res.send({ track: trackName, artist: artistName });
 });
 
 // --- Spotify Recommendations ---
@@ -342,6 +413,7 @@ app.get("/recommendations", async (req, res) => {
 
     // const seedTrackId = playback.body.item.id;
     // const trackName = playback.body.item.name;
+    // const artistName = playback.body.item.artists.map((a) => a.name).join(", ");
 
     // console.log(`🎵 Seed track: ${trackName} (ID: ${seedTrackId})`);
 
