@@ -10,7 +10,7 @@ const User = require("./model/UserSchema");
 
 // Initialize Express
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // MongoDB connection
 require("./db/conn"); // Make sure this connects properly
@@ -92,11 +92,6 @@ app.get("/api/protected", (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
   }
 });
-
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
-
 // --- Spotify Auth Routes ---
 
 app.get("/spotifylogin", (req, res) => {
@@ -109,7 +104,7 @@ app.get("/spotifylogin", (req, res) => {
   res.redirect(spotifyApi.createAuthorizeURL(scopes));
 });
 
-app.get("/callback", async (req, res) => {
+app.get("/spotifycallback", async (req, res) => {
   const { error, code } = req.query;
 
   if (error) {
