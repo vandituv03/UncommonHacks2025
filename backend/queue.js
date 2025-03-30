@@ -1,6 +1,6 @@
 // In-memory queues
 const loyalty_queue = []; // [{ song: { title, artist }, points }]
-const free_queue = [];    // [{ title, artist }]
+const free_queue = []; // [{ title, artist }]
 const recommended_array = []; // [{ title, artist }]
 
 // Utility: Clean and validate a song object
