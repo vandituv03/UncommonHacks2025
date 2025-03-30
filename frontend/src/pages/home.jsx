@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import * as THREE from 'three';
 import './homepage.css';
 
-
 function Home() {
   const [points, setPoints] = useState(1250);
   const [likes, setLikes] = useState(128);
@@ -79,7 +78,7 @@ function Home() {
       </nav>
 
       <main className="main-content">
-        <section className="card">
+        <section className="search-box">
           <input
             type="text"
             className="input"
@@ -87,38 +86,35 @@ function Home() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <div style={{ display: "flex", gap: "1rem", marginBottom: "0.75rem" }}>
+          <div className="search-buttons">
             <button className="primary-btn"><i className="bi bi-music-note" /> Request for Free</button>
             <button className="secondary-btn"><i className="bi bi-lightning" /> Bid with Points (Min: 100)</button>
           </div>
-          <p style={{ color: "#facc15", fontSize: "0.9rem" }}>
+          <p className="note-text">
             Popular songs require higher bids - <strong>current minimum: 100 points</strong>
           </p>
         </section>
 
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "2rem", marginTop: "2rem" }}>
-          <div>
-            <section className="card">
+        <div className="card-grid">
+          <div className="column">
+            <section className="now-playing-box">
               <h2 className="neon-text">Now Playing</h2>
               <div className="song-card">
                 <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7" alt="Now Playing" />
                 <div className="song-details">
                   <h3>Shape of You</h3>
                   <p>Ed Sheeran</p>
-                  <p style={{ color: "#facc15" }}>Requested by @alex</p>
-                  <button onClick={handleLikeClick} className="primary-btn" style={{ marginTop: "0.5rem", padding: "0.3rem 0.75rem", fontSize: "0.9rem" }}>
+                  <p className="requested-by">Requested by @alex</p>
+                  <button onClick={handleLikeClick} className="primary-btn">
                     <i className="bi bi-heart-fill" /> {likes}
                   </button>
                 </div>
               </div>
             </section>
 
-            <section className="card" style={{ marginTop: "1.5rem" }}>
-              <h2 className="neon-text" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Queue</span>
-                <span style={{ fontWeight: 'normal', fontSize: '0.9rem', color: '#facc15' }}>Next song plays in: 2:15</span>
-              </h2>
-              <div className="space-y-3">
+            <section className="queue-box">
+              <h2 className="neon-text">Queue <span className="timer">Next song plays in: 2:15</span></h2>
+              <div className="queue-list">
                 {songQueue.map((song, idx) => (
                   <div className="song-card" key={idx}>
                     <img src={`https://source.unsplash.com/random/48x48?sig=${idx}`} alt={song.title} />
@@ -126,24 +122,22 @@ function Home() {
                       <h4>{song.title}</h4>
                       <p>{song.artist}</p>
                     </div>
-                    <div style={{ textAlign: "right" }}>
-                      <p style={{ color: "#facc15", fontWeight: "bold" }}>{song.points} pts</p>
+                    <div className="right-info">
+                      <p className="points">{song.points} pts</p>
                       <p>@{song.user}</p>
                       <div><i className="bi bi-heart-fill text-red-400" /> {song.likes}</div>
                     </div>
-                    <div>
-                      <i className="bi bi-trash" style={{ color: "#f87171", cursor: "pointer" }}></i>
-                    </div>
+                    <i className="bi bi-trash delete-icon"></i>
                   </div>
                 ))}
               </div>
             </section>
           </div>
 
-          <div>
-            <section className="card stats-section">
+          <div className="column">
+            <section className="stats-box">
               <h2 className="neon-text">Your Stats</h2>
-              <div style={{ marginTop: '1rem' }}>
+              <div className="stats-content">
                 <p>Total Points: <span className="value">{points}</span></p>
                 <p>Songs Submitted: <span className="value">23</span></p>
                 <p>Likes Received: <span className="value">156</span></p>
@@ -152,16 +146,15 @@ function Home() {
               <button
                 onClick={handleClaimBonus}
                 className="secondary-btn"
-                style={{ marginTop: "1rem" }}
                 disabled={bonusClaimed}
               >
                 <i className="bi bi-gift" /> {bonusClaimed ? "Bonus Claimed! +100" : "Claim Daily Bonus"}
               </button>
             </section>
 
-            <section className="card leaderboard-section" style={{ marginTop: "1.5rem" }}>
+            <section className="leaderboard-box">
               <h2 className="neon-text">Leaderboard</h2>
-              <div style={{ marginTop: '1rem' }}>
+              <div className="leaderboard-content">
                 <p>🥇 @sarah - <span className="value">2,450 pts</span></p>
                 <p>🥈 @mike_dj - <span className="value">1,785 pts</span></p>
                 <p>🥉 @john_doe - <span className="value">1,250 pts</span></p>
