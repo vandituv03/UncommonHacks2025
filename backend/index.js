@@ -114,8 +114,7 @@ app.use(express.json());
 app.get("/", (req, res) => {
   if (req.oidc.isAuthenticated()) {
     // ✅ Redirect to the frontend app's landing page
-    return res.redirect("http://localhost:5174/home");
->>>>>>> 76beef1bc99f181e2f3b84ccb9bc0a4a490beeff
+    return res.redirect("http://localhost:5173/home");
   }
   res.send('<a href="/login">Login</a>');
 });
