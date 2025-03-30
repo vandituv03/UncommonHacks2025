@@ -322,8 +322,6 @@ function Home() {
               <div className="stats-content">
                 <p>Total Points: <span className="value">{points}</span></p>
                 <p>Songs Submitted: <span className="value">23</span></p>
-                <p>Likes Received: <span className="value">156</span></p>
-                <p>Check-in Streak: <span className="value">5 days 🔥</span></p>
               </div>
               <button
                 onClick={handleClaimBonus}

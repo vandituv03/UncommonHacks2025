@@ -1,6 +1,5 @@
 const User = require("../models/UserSchema");
 
-
 const check_in = async (userId, pointsToAdd) => {
   try {
     const user = await User.findById(userId);
