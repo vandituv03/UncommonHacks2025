@@ -4,6 +4,7 @@ import './homepage.css';
 import logo from '../assets/logo.png';
 
 function Home() {
+  const [user, setUser] = useState(null); // ✅ ADD THIS LINE
   const [points, setPoints] = useState(1250);
   const [likes, setLikes] = useState(128);
   const [bonusClaimed, setBonusClaimed] = useState(false);
@@ -15,6 +16,7 @@ function Home() {
 
   useEffect(() => {
     initThreeScene();
+    fetchUser();
   }, []);
 
   const initThreeScene = () => {
@@ -55,6 +57,22 @@ function Home() {
     animate();
   };
 
+  const fetchUser = async () => {
+    try {
+      const res = await fetch('http://localhost:3000/profile', {
+        method: 'GET',
+        credentials: 'include', // very important for session cookie
+      });
+  
+      if (!res.ok) throw new Error('Failed to fetch user');
+      const data = await res.json();
+      setUser(data);
+      setPoints(data.Loyalty_Points || 0);
+    } catch (err) {
+      console.error("❌ Error fetching user profile:", err);
+    }
+  };
+
   const handleLikeClick = () => setLikes(likes + 1);
   const handleClaimBonus = () => {
     setPoints(points + 100);
@@ -73,7 +91,14 @@ function Home() {
           <span style={{ color: "#facc15", fontWeight: "bold" }}>
             <i className="bi bi-coin" /> {points} points
           </span>
-          <button>John Doe</button>
+          {user ? (
+          <button>
+            <img src={user.picture} alt={user.name} style={{ width: 30, borderRadius: '50%', marginRight: 8 }} />
+            {user.name}
+          </button>
+        ) : (
+          <button disabled>Loading...</button>
+        )}
           <button><i className="bi bi-shield-lock" /> Admin</button>
         </div>
       </nav>

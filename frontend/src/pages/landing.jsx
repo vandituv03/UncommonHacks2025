@@ -118,7 +118,7 @@ const Landing = () => {
   };
 
   const handleLogin = () => {
-    window.location.href = '/home';
+    window.location.href = 'http://localhost:3000/login';
   };
 
   const handleOpenApp = () => {
