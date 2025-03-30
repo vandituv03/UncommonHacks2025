@@ -1,29 +1,42 @@
-import { useEffect, useState } from 'react';
+// import React from 'react';
+// import { Routes, Route } from 'react-router-dom';
+// import Landing from './pages/landing';
+// import Home from './pages/home';
+
+// function App() {
+//   return (
+//     <Routes>
+//       <Route path="/" element={<Landing />} />
+//       <Route path="/home" element={<Home />} />
+//     </Routes>
+//   );
+// }
+
+// export default App;
+
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Landing from './pages/Landing';
+import Home from './pages/Home';
+import PrivateRoute from './components/PrivateRoute';
 
 function App() {
-  const [profile, setProfile] = useState(null);
-
-  useEffect(() => {
-    fetch('http://localhost:3000/profile', {
-      credentials: 'include'
-    })
-      .then(res => res.json())
-      .then(data => setProfile(data));
-  }, []);
-
   return (
-    <div>
-      <h1>Auth0 + Express + Vite</h1>
-      {profile ? (
-        <>
-          <p>Welcome, {profile.name}</p>
-          <a href="http://localhost:3000/logout">Log out</a>
-        </>
-      ) : (
-        <a href="http://localhost:3000/login">Log in</a>
-      )}
-    </div>
+    
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route
+          path="/home"
+          element={
+            <PrivateRoute>
+              <Home />
+            </PrivateRoute>
+          }
+        />
+        {/* Add other protected routes similarly */}
+      </Routes>
+    
   );
 }
 
 export default App;
+

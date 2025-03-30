@@ -1,0 +1,389 @@
+/* === Canvas Background === */
+.three-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+}
+
+/* === Logo Image with Optional Blur === */
+.navbar-logo-wrapper {
+  height: clamp(170px, 9vw, 135px);
+  width: clamp(170px, 9vw, 135px);
+  margin-left: -10px; /* Shift logo slightly left */
+}
+
+.logo-blur {
+  height: clamp(170px, 9vw, 135px);
+  width: clamp(170px, 9vw, 135px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 135px;
+  height: 135px;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(20px);
+  opacity: 0.95;
+}
+
+.navbar:hover .logo-image {
+  filter: drop-shadow(0 0 8px #c084fc) drop-shadow(0 0 12px #9333ea);
+  transform: scale(1.08);
+}
+
+.navbar-logo-wrapper:not(.with-blur) .logo-blur {
+  display: none;
+}
+
+/* === Login Button Blur === */
+.button-with-blur {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-blur {
+  position: absolute;
+  top: -20%;
+  left: -20%;
+  width: 140%;
+  height: 140%;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(24px);
+  opacity: 1;
+}
+
+/* === Wave Effect at Top === */
+.navbar-wave {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  z-index: 49;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.navbar-wave svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* === Glow Background === */
+.background-glow-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(147, 51, 234, 0.2), transparent 70%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* === Navbar === */
+.navbar {
+  background-color: transparent;
+  box-shadow: none;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  padding: 0.25rem 1rem;
+  position: fixed;
+  height: 4.5rem;
+  width: 100%;
+  z-index: 50;
+}
+
+.navbar:hover {
+  background-color: rgba(30, 30, 47, 0.95);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #c084fc;
+  transition: color 0.3s ease, transform 0.3s ease;
+  margin-left: -10px; /* shift logo unit slightly left */
+}
+
+.navbar:hover .navbar-logo {
+  color: #c084fc;
+  transform: scale(1.05);
+}
+
+/* === Login Button === */
+.login-button {
+  border: 1px solid #a855f7;
+  padding: 0.5rem 1.25rem;
+  color: #d8b4fe;
+  border-radius: 9999px;
+  background-color: transparent;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.2s ease;
+  font-weight: 600;
+  font-size: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.login-button:hover {
+  background-color: #7e22ce;
+  box-shadow: 0 0 8px #c084fc, 0 0 12px #9333ea;
+  transform: scale(1.05);
+}
+
+/* === Main Content === */
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 5rem 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8rem;
+  text-align: center;
+  position: relative;
+  z-index: 10;
+}
+
+/* === Hero Section === */
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.hero-text h1 {
+  font-size: 5rem;
+  color: white;
+  font-weight: 800;
+  line-height: 1.2;
+  text-shadow: 0 0 8px #c084fc, 0 0 16px #c084fc;
+}
+
+.hero-text p {
+  font-size: 1.5rem;
+  color: #e9d5ff;
+}
+
+/* === Now Playing Card === */
+.now-playing-card {
+  background-color: #1e1e2f;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.now-playing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  color: #d8b4fe;
+}
+
+.now-playing-status {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #c084fc;
+  font-size: 0.875rem;
+}
+
+.now-playing-body {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.album-art {
+  width: 6rem;
+  height: 6rem;
+  background: linear-gradient(to bottom right, #7e22ce, #9333ea);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(128, 0, 255, 0.4);
+}
+
+.album-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.song-details {
+  text-align: left;
+  flex: 1;
+}
+
+.song-details h3 {
+  color: white;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.song-details p {
+  color: #d8b4fe;
+  font-size: 0.875rem;
+}
+
+.like-button {
+  margin-top: 0.5rem;
+  background-color: rgba(185, 28, 28, 0.2);
+  color: #f87171;
+}
+
+/* === Features Section === */
+.features-section h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 3rem;
+  text-shadow: 0 0 8px #c084fc;
+}
+
+.features-grid {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.feature-card {
+  background-color: #1e1e2f;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  text-align: center;
+  width: 100%;
+  transition: transform 0.2s ease;
+}
+
+.feature-card:hover {
+  transform: scale(1.05);
+}
+
+.feature-icon {
+  background-color: #9333ea;
+  width: 3.5rem;
+  height: 3.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 9999px;
+  margin: 0 auto 1rem;
+  color: white;
+}
+
+.feature-card h3 {
+  color: white;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.feature-card p {
+  color: #e9d5ff;
+  font-size: 0.875rem;
+}
+
+/* === CTA Section === */
+.cta-section h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 8px #c084fc;
+}
+
+.cta-section p {
+  color: #d8b4fe;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cta-button {
+  padding: 1rem 2rem;
+  border-radius: 9999px;
+  background: linear-gradient(to right, #9333ea, #ec4899);
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.4);
+  transition: transform 0.2s ease;
+}
+
+.cta-button:hover {
+  transform: scale(1.05);
+}
+
+/* === Footer === */
+.footer {
+  background-color: #1e1e2f;
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  color: #d8b4fe;
+  z-index: 10;
+  margin-top: 4rem;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #c084fc;
+  font-size: 1.125rem;
+}
+
+.footer-center p {
+  font-size: 0.875rem;
+  color: #d8b4fe;
+  margin: 0;
+}
+
+.footer-right a {
+  margin-left: 1rem;
+  font-size: 1.25rem;
+  color: #c084fc;
+  transition: color 0.3s ease;
+}
+
+.footer-right a:hover {
+  color: #ec4899;
+}
+
+.footer-branding {
+  display: none;
+}
