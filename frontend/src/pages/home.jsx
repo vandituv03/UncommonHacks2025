@@ -12,6 +12,7 @@ function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const [nowPlaying, setNowPlaying] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
+  const [notification, setNotification] = useState({ show: false, message: '', type: 'success' });
   const [songQueue, setSongQueue] = useState([
     { title: "Blinding Lights", artist: "The Weeknd", points: 500, user: "user123", likes: 42 },
     { title: "Stay", artist: "The Kid LAROI, Justin Bieber", points: 320, user: "maria55", likes: 18 }
@@ -34,133 +35,131 @@ function Home() {
     }
   };
 
+  const showNotification = (message, type = 'success') => {
+    setNotification({ show: true, message, type });
+  };
+
   const generateCircleTexture = () => {
-      const size = 64;
-      const canvas = document.createElement('canvas');
-      canvas.width = size;
-      canvas.height = size;
-    
-      const ctx = canvas.getContext('2d');
-      const center = size / 2;
-    
-      ctx.beginPath();
-      ctx.arc(center, center, center, 0, Math.PI * 2);
-      ctx.fillStyle = 'white';
-      ctx.fill();
-    
-      const texture = new THREE.CanvasTexture(canvas);
-      return texture;
-    };
-    
-    const initThreeScene = () => {
-      const canvas = document.querySelector('.three-canvas');
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      const renderer = new THREE.WebGLRenderer({
-        canvas,
-        alpha: true,
-        antialias: true
-      });
-  
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setClearColor(0x000000, 0);
-  
-      const particlesGeometry = new THREE.BufferGeometry();
-      const particlesCount = 1000;
-      const positions = new Float32Array(particlesCount * 3);
-      const colors = new Float32Array(particlesCount * 3);
-  
-      for (let i = 0; i < particlesCount * 3; i += 3) {
-        positions[i] = (Math.random() - 0.5) * 10;
-        positions[i + 1] = (Math.random() - 0.5) * 10;
-        positions[i + 2] = (Math.random() - 0.5) * 10;
-  
-        colors[i] = Math.random() * 0.5 + 0.5;
-        colors[i + 1] = Math.random() * 0.3;
-        colors[i + 2] = Math.random() * 0.5 + 0.5;
-      }
-  
-      particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-      particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-  
-      const circleTexture = generateCircleTexture();
-  
+    const size = 64;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+
+    const ctx = canvas.getContext('2d');
+    const center = size / 2;
+
+    ctx.beginPath();
+    ctx.arc(center, center, center, 0, Math.PI * 2);
+    ctx.fillStyle = 'white';
+    ctx.fill();
+
+    return new THREE.CanvasTexture(canvas);
+  };
+
+  const initThreeScene = () => {
+    const canvas = document.querySelector('.three-canvas');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x000000, 0);
+
+    const particlesGeometry = new THREE.BufferGeometry();
+    const particlesCount = 1000;
+    const positions = new Float32Array(particlesCount * 3);
+    const colors = new Float32Array(particlesCount * 3);
+
+    for (let i = 0; i < particlesCount * 3; i += 3) {
+      positions[i] = (Math.random() - 0.5) * 10;
+      positions[i + 1] = (Math.random() - 0.5) * 10;
+      positions[i + 2] = (Math.random() - 0.5) * 10;
+
+      colors[i] = Math.random() * 0.5 + 0.5;
+      colors[i + 1] = Math.random() * 0.3;
+      colors[i + 2] = Math.random() * 0.5 + 0.5;
+    }
+
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const circleTexture = generateCircleTexture();
+
     const particlesMaterial = new THREE.PointsMaterial({
       size: 0.05,
       map: circleTexture,
       transparent: true,
-      alphaTest: 0.5,       // helps cut off square edges
+      alphaTest: 0.5,
       vertexColors: true,
-    });   
-  
-      const particles = new THREE.Points(particlesGeometry, particlesMaterial);
-      scene.add(particles);
-  
-      const spheres = [];
-      const sphereMaterial = new THREE.MeshStandardMaterial({ color: 0x9333ea, emissive: 0x220044 });
-      for (let i = 0; i < 5; i++) {
-        const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.15, 32, 32), sphereMaterial);
-        sphere.position.set((Math.random() - 0.5) * 6, (Math.random() - 0.5) * 4, (Math.random() - 0.5) * 6);
-        spheres.push(sphere);
-        scene.add(sphere);
-      }
-  
-      const rings = [];
-      const ringMaterial = new THREE.MeshStandardMaterial({ color: 0xc084fc, wireframe: true });
-      for (let i = 0; i < 3; i++) {
-        const ring = new THREE.Mesh(new THREE.TorusGeometry(1 + i * 0.5, 0.02, 16, 100), ringMaterial);
-        ring.rotation.x = Math.random() * Math.PI;
-        ring.rotation.y = Math.random() * Math.PI;
-        ring.position.set(0, 0, -2 + i);
-        rings.push(ring);
-        scene.add(ring);
-      }
-  
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-      const pointLight = new THREE.PointLight(0xff00ff, 1, 10);
-      pointLight.position.set(2, 2, 2);
-      scene.add(ambientLight);
-      scene.add(pointLight);
-  
-      camera.position.z = 5;
-  
-      const mouse = { x: 0, y: 0 };
-      document.addEventListener('mousemove', (event) => {
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    });
+
+    const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+    scene.add(particles);
+
+    const spheres = [];
+    const sphereMaterial = new THREE.MeshStandardMaterial({ color: 0x9333ea, emissive: 0x220044 });
+    for (let i = 0; i < 5; i++) {
+      const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.15, 32, 32), sphereMaterial);
+      sphere.position.set((Math.random() - 0.5) * 6, (Math.random() - 0.5) * 4, (Math.random() - 0.5) * 6);
+      spheres.push(sphere);
+      scene.add(sphere);
+    }
+
+    const rings = [];
+    const ringMaterial = new THREE.MeshStandardMaterial({ color: 0xc084fc, wireframe: true });
+    for (let i = 0; i < 3; i++) {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(1 + i * 0.5, 0.02, 16, 100), ringMaterial);
+      ring.rotation.x = Math.random() * Math.PI;
+      ring.rotation.y = Math.random() * Math.PI;
+      ring.position.set(0, 0, -2 + i);
+      rings.push(ring);
+      scene.add(ring);
+    }
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    const pointLight = new THREE.PointLight(0xff00ff, 1, 10);
+    pointLight.position.set(2, 2, 2);
+    scene.add(ambientLight, pointLight);
+
+    camera.position.z = 5;
+
+    const mouse = { x: 0, y: 0 };
+    document.addEventListener('mousemove', (event) => {
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    });
+
+    const animate = () => {
+      requestAnimationFrame(animate);
+
+      particles.rotation.x += 0.0005;
+      particles.rotation.y += 0.0005;
+
+      spheres.forEach((sphere, index) => {
+        sphere.position.y += Math.sin(Date.now() * 0.001 + index) * 0.001;
+        sphere.rotation.y += 0.002;
       });
-  
-      const animate = () => {
-        requestAnimationFrame(animate);
-  
-        particles.rotation.x += 0.0005;
-        particles.rotation.y += 0.0005;
-  
-        spheres.forEach((sphere, index) => {
-          sphere.position.y += Math.sin(Date.now() * 0.001 + index) * 0.001;
-          sphere.rotation.y += 0.002;
-        });
-  
-        rings.forEach((ring, index) => {
-          ring.rotation.x += 0.001 + index * 0.0005;
-          ring.rotation.y += 0.001;
-        });
-  
-        camera.position.x += (mouse.x * 0.5 - camera.position.x) * 0.05;
-        camera.position.y += (mouse.y * 0.5 - camera.position.y) * 0.05;
-        camera.lookAt(scene.position);
-  
-        renderer.render(scene, camera);
-      };
-  
-      animate();
-  
-      window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
+
+      rings.forEach((ring, index) => {
+        ring.rotation.x += 0.001 + index * 0.0005;
+        ring.rotation.y += 0.001;
       });
+
+      camera.position.x += (mouse.x * 0.5 - camera.position.x) * 0.05;
+      camera.position.y += (mouse.y * 0.5 - camera.position.y) * 0.05;
+      camera.lookAt(scene.position);
+
+      renderer.render(scene, camera);
     };
+
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  };
 
   const fetchUser = async () => {
     try {
@@ -251,17 +250,20 @@ function Home() {
   const handleClaimBonus = () => {
     setPoints(points + 100);
     setBonusClaimed(true);
+    showNotification("🎁 Daily Bonus Claimed! +100 Points", "success");
   };
 
   const handleDeleteSong = (index) => {
     if (!user?.ifAdmin) return;
-    console.log(`Deleting song at index: ${index}`);
     setSongQueue(prev => prev.filter((_, idx) => idx !== index));
+    showNotification("🗑️ Song deleted from queue", "success");
   };
 
   const handleSongRequest = async (type) => {
-    if (!searchTerm.trim()) return alert("Please enter a song name!");
-  
+    if (!searchTerm.trim()) {
+      return showNotification("Please enter a song name!", "error");
+    }
+
     try {
       const res = await fetch(`http://localhost:3000/search`, {
         method: 'POST',
@@ -269,25 +271,39 @@ function Home() {
         credentials: 'include',
         body: JSON.stringify({
           search: searchTerm,
-          type: type, // 'free' or 'bid'
+          type: type,
         }),
       });
-  
+
       if (!res.ok) throw new Error('Failed to submit request');
       const data = await res.json();
-      console.log("✅ Song request submitted:", data);
-      alert(`Song ${type === "bid" ? "bid" : "requested for free"} successfully!`);
+      showNotification(`🎵 Song ${type === "bid" ? "bid" : "requested"} successfully!`, "success");
     } catch (err) {
       console.error("❌ Error submitting song request:", err);
-      alert("Failed to submit song request");
+      showNotification("Failed to submit song request", "error");
     }
   };
-  
 
   return (
     <>
       <canvas className="three-canvas" />
       <div className="background-glow-overlay" />
+
+      {notification.show && (
+        <div className={`center-toast ${notification.type}`}>
+          <div className="toast-message">
+            <i className={`bi ${notification.type === 'success' ? 'bi-check-circle-fill' : 'bi-x-circle-fill'}`} />
+            <span>{notification.message}</span>
+          </div>
+          <button
+            className="secondary-btn toast-dismiss-btn"
+            onClick={() => setNotification({ ...notification, show: false })}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
       <nav className="navbar">
         <div className="navbar-logo-wrapper">
           <img src={logo} alt="JukeBid Logo" className="logo-image" />
@@ -305,7 +321,6 @@ function Home() {
           ) : (
             <button disabled>Loading...</button>
           )}
-
           {user?.ifAdmin && (
             <button
               onClick={() => {
@@ -322,38 +337,26 @@ function Home() {
       </nav>
 
       <main className="main-content">
-
-          <section className="search-box">
-            <input
-              type="text"
-              className="input"
-              placeholder="Search for a song..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-
-            <div className="search-buttons">
-              <button
-                className="primary-btn"
-                onClick={() => handleSongRequest("free")}
-              >
-                <i className="bi bi-music-note" /> Request for Free
-              </button>
-
-              <button
-                className="secondary-btn"
-                onClick={() => handleSongRequest("bid")}
-              >
-                <i className="bi bi-lightning" /> Bid with Points (Min: 100)
-              </button>
-            </div>
-
-            <p className="note-text">
-              Popular songs require higher bids - <strong>current minimum: 100 points</strong>
-            </p>
-          </section>
-
-
+        <section className="search-box">
+          <input
+            type="text"
+            className="input"
+            placeholder="Search for a song..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <div className="search-buttons">
+            <button className="primary-btn" onClick={() => handleSongRequest("free")}>
+              <i className="bi bi-music-note" /> Request for Free
+            </button>
+            <button className="secondary-btn" onClick={() => handleSongRequest("bid")}>
+              <i className="bi bi-lightning" /> Bid with Points (Min: 100)
+            </button>
+          </div>
+          <p className="note-text">
+            Popular songs require higher bids - <strong>current minimum: 100 points</strong>
+          </p>
+        </section>
 
         <div className="card-grid">
           <div className="column">
