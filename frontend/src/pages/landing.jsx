@@ -10,7 +10,24 @@ const Landing = () => {
   useEffect(() => {
     initThreeScene();
   }, []);
-
+  const generateCircleTexture = () => {
+    const size = 64;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+  
+    const ctx = canvas.getContext('2d');
+    const center = size / 2;
+  
+    ctx.beginPath();
+    ctx.arc(center, center, center, 0, Math.PI * 2);
+    ctx.fillStyle = 'white';
+    ctx.fill();
+  
+    const texture = new THREE.CanvasTexture(canvas);
+    return texture;
+  };
+  
   const initThreeScene = () => {
     const canvas = document.querySelector('.three-canvas');
     const scene = new THREE.Scene();
@@ -42,12 +59,15 @@ const Landing = () => {
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-    const particlesMaterial = new THREE.PointsMaterial({
-      size: 0.015,
-      transparent: true,
-      opacity: 0.8,
-      vertexColors: true,
-    });
+    const circleTexture = generateCircleTexture();
+
+  const particlesMaterial = new THREE.PointsMaterial({
+    size: 0.05,
+    map: circleTexture,
+    transparent: true,
+    alphaTest: 0.5,       // helps cut off square edges
+    vertexColors: true,
+  });   
 
     const particles = new THREE.Points(particlesGeometry, particlesMaterial);
     scene.add(particles);
@@ -75,6 +95,7 @@ const Landing = () => {
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     const pointLight = new THREE.PointLight(0xff00ff, 1, 10);
     pointLight.position.set(2, 2, 2);
+    scene.add(ambientLight);
     scene.add(pointLight);
 
     camera.position.z = 5;
