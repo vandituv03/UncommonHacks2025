@@ -319,67 +319,128 @@ const {
   getFinalQueue,
 } = require("./queue");
 
+app.post("/spotify-play", async (req, res) => {
+  try {
+    await ensureSpotifyAccessToken();
+
+    const playback = await spotifyApi.getMyCurrentPlaybackState();
+    const deviceId = playback.body?.device?.id;
+
+    if (!deviceId) {
+      return res.status(400).send("❌ No active device found");
+    }
+
+    await spotifyApi.play({ device_id: deviceId });
+    res.send("▶️ Playback started");
+  } catch (err) {
+    console.error("❌ Error in /spotify-play:", err.message);
+    res.status(500).send("Failed to start playback");
+  }
+});
+
+app.post("/spotify-pause", async (req, res) => {
+  try {
+    await ensureSpotifyAccessToken();
+    await spotifyApi.pause();
+    res.send("⏸ Playback paused");
+  } catch (err) {
+    console.error("❌ Error in /spotify-pause:", err.message);
+    res.status(500).send("Failed to pause playback");
+  }
+});
+
+app.post("/spotify-next", async (req, res) => {
+  try {
+    await ensureSpotifyAccessToken();
+    await spotifyApi.skipToNext();
+    res.send("⏭ Skipped to next track");
+  } catch (err) {
+    console.error("❌ Error in /spotify-next:", err.message);
+    res.status(500).send("Failed to skip to next track");
+  }
+});
+
+app.post("/spotify-previous", async (req, res) => {
+  try {
+    await ensureSpotifyAccessToken();
+    await spotifyApi.skipToPrevious();
+    res.send("⏮ Skipped to previous track");
+  } catch (err) {
+    console.error("❌ Error in /spotify-previous:", err.message);
+    res.status(500).send("Failed to skip to previous track");
+  }
+});
+
 app.post("/search", async (req, res) => {
   await ensureSpotifyAccessToken();
 
   const { search, type, email, points = 100 } = req.body;
-
   console.log("📥 Received search request:", { search, type, points });
 
   if (!search || !type || !email) {
-    console.warn("❌ Missing search or type in request");
+    return res.status(400).send("❌ 'search', 'type' and 'email' are required");
+  }
+
+  // 1. 🚫 Block inappropriate or meme keywords
+  const blockedKeywords = ["fart", "earrape", "moan", "rickroll", "scream"];
+  const isBlocked = blockedKeywords.some((word) =>
+    search.toLowerCase().includes(word),
+  );
+  if (isBlocked) {
     return res
       .status(400)
-      .send("❌ 'search' and 'type' fields are required in the request body");
+      .send("❌ That request isn't allowed. Try something else.");
   }
 
   try {
     const formattedSearch = search.trim().replace(/\s+/g, "%20");
-    console.log("🔍 Formatted search query for Spotify:", formattedSearch);
-
     const data = await spotifyApi.searchTracks(formattedSearch);
 
     if (data.body.tracks.items.length === 0) {
-      console.warn("⚠️ No tracks found for:", search);
       return res.status(404).send("❌ No tracks found");
     }
 
     const track = data.body.tracks.items[0];
     const trackUri = track.uri;
-    lastSearchedTrackName = track.name; // Store the last searched track name
+    const popularity = track.popularity;
+
+    lastSearchedTrackName = track.name;
 
     const songObj = {
       title: track.name,
       artist: track.artists.map((a) => a.name).join(", "),
     };
 
-    console.log("🎵 Track found:", songObj);
-    // 🔼 Increment Total_Bids for this user
-    if (type === "bid" || type === "free") {
-      await User.findOneAndUpdate(
-        { email },
-        { $inc: { Total_Bids: 1 } },
-        { new: true },
-      );
+    console.log("🎵 Found track:", songObj, `(popularity: ${popularity})`);
+
+    // 2. 🚫 Reject super obscure tracks
+    if (popularity < 10) {
+      return res.status(400).send("❌ This song is too obscure to request.");
     }
 
-    if (type === "bid") {
-      const bidCost = 100;
-      await User.findOneAndUpdate(
-        { email },
-        { $inc: { Loyalty_Points: -bidCost } },
-        { new: true },
-      );
+    // 3. 💰 Adjust bid price based on popularity
+    let minBid = 100;
+    if (popularity < 30) minBid = 300;
+    if (popularity < 20) minBid = 500;
+
+    if (type === "bid" && points < minBid) {
+      return res
+        .status(400)
+        .send(`❌ This song requires a minimum bid of ${minBid} points.`);
     }
 
-    // Add to the appropriate queue
+    // 4. Update User Stats
+    const userUpdate = {
+      $inc: {
+        Total_Bids: 1,
+        ...(type === "bid" ? { Loyalty_Points: -points } : {}),
+      },
+    };
+
+    await User.findOneAndUpdate({ email }, userUpdate, { new: true });
+
+    // 5. Add to correct queue
     if (type === "bid") {
-      if (typeof points !== "number") {
-        console.warn("⚠️ Points missing for loyalty queue");
-        return res
-          .status(400)
-          .send("❌ 'points' must be a number for loyalty queue");
-      }
       addToLoyaltyQueue(songObj, points);
       console.log(`📦 Added to loyalty queue with ${points} points`);
     } else if (type === "free") {
@@ -389,26 +450,18 @@ app.post("/search", async (req, res) => {
       addToRecommendedArray(songObj);
       console.log("📦 Added to recommended array");
     } else {
-      console.warn("❌ Invalid type:", type);
       return res
         .status(400)
-        .send("❌ Invalid type (use loyalty, free, or recommended)");
+        .send("❌ Invalid type (bid, free, or recommended)");
     }
 
-    // ✅ Rebuild and log final queue
     const finalQueue = getFinalQueue();
-    console.log("🎶 Final Playback Queue:");
-    console.log(finalQueue); // nicely formatted output
 
-    const responsePayload = {
+    return res.send({
       uri: trackUri,
       type,
       finalQueue,
-    };
-
-    res.send(responsePayload);
-
-    // console.log(res.data);
+    });
   } catch (err) {
     console.error("🚨 Search error:", {
       status: err.statusCode,

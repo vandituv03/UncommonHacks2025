@@ -10,10 +10,13 @@ function Home() {
   const [likes, setLikes] = useState(0);
   const [bonusClaimed, setBonusClaimed] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [bidAmount, setBidAmount] = useState(100);
+  const [searchType, setSearchType] = useState(null); // 'free' or 'bid'
   const [notification, setNotification] = useState({ show: false, message: '', type: 'success' });
   const [nowPlaying, setNowPlaying] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
   const [songsRequested, setSongsRequested] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [songQueue, setSongQueue] = useState([
     { title: "Blinding Lights", artist: "The Weeknd", points: 500, user: "user123", likes: 42 },
     { title: "Stay", artist: "The Kid LAROI, Justin Bieber", points: 320, user: "maria55", likes: 18 }
@@ -284,9 +287,39 @@ function Home() {
     showNotification("🗑️ Song deleted from queue", "success");
   };
 
+  const handleTogglePlay = () => {
+    setIsPlaying(!isPlaying);
+  
+    if (!isPlaying) {
+      handlePlay();   // You can call your play logic here
+    } else {
+      handlePause();  // Create this function if needed
+    }
+  };
+
+  const handleNext = async () => {
+    await fetch("http://localhost:3000/spotify-next", { method: "POST" });
+  };
+  const handlePrevious = async () => {
+    await fetch("http://localhost:3000/spotify-previous", { method: "POST" });
+  };
+  const handlePlay = async () => {
+    await fetch("http://localhost:3000/spotify-play", { method: "POST" });
+  };
+  const handlePause = async () => {
+    await fetch("http://localhost:3000/spotify-pause", { method: "POST" });
+  };
+  
+
+
+
+
   const handleSongRequest = async (type) => {
     if (!searchTerm.trim()) {
       return showNotification("Please enter a song name!", "error");
+    }
+    if (type === "bid" && bidAmount < 100) {
+      return showNotification("Minimum bid is 100 points", "error");
     }
   
     try {
@@ -298,6 +331,7 @@ function Home() {
           search: searchTerm,
           type: type, // 'free' or 'bid'
           email: user.email, // 👈 Send email
+          ...(type === "bid" && { points: bidAmount }),
         }),
       });
   
@@ -383,18 +417,39 @@ function Home() {
             <div className="search-buttons">
               <button
                 className="primary-btn"
-                onClick={() => handleSongRequest("free")}
+                onClick={() => {
+                  setSearchType("free");
+                  handleSongRequest("free");
+                }}
               >
                 <i className="bi bi-music-note" /> Request for Free
               </button>
 
               <button
                 className="secondary-btn"
-                onClick={() => handleSongRequest("bid")}
+                onClick={() => setSearchType("bid")}
               >
                 <i className="bi bi-lightning" /> Bid with Points (Min: 100)
               </button>
             </div>
+            {searchType === "bid" && (
+            <div className="bid-confirm-box">
+              <input
+                type="number"
+                placeholder="Enter bid amount (min 100)"
+                className="input"
+                value={bidAmount}
+                onChange={(e) => setBidAmount(Number(e.target.value))}
+                min={100}
+              />
+              <button
+                className="primary-btn"
+                onClick={() => handleSongRequest("bid")}
+              >
+                Confirm Bid
+              </button>
+            </div>
+          )}
 
             <p className="note-text">
               Popular songs require higher bids - <strong>current minimum: 100 points</strong>
@@ -406,7 +461,7 @@ function Home() {
         <div className="card-grid">
           <div className="column">
           {nowPlaying ? (
-              <section className="now-playing-box">
+            <section className="now-playing-box">
               <h2 className="neon-text">Now Playing</h2>
               <div className="song-card">
                 <img
@@ -423,6 +478,20 @@ function Home() {
                     <i className="bi bi-heart-fill" /> {likes}
                   </button>
                 </div>
+                
+                {user?.ifAdmin && (
+                  <div className="play-pause-next">
+                    <button onClick={handlePrevious} className="primary-btn">
+                      <i className="bi bi-skip-backward-fill" />
+                    </button>
+                    <button onClick={handleTogglePlay} className="primary-btn">
+                      <i className={`bi ${isPlaying ? "bi-pause-fill" : "bi-play-fill"}`} />
+                    </button>
+                    <button onClick={handleNext} className="primary-btn">
+                      <i className="bi bi-skip-forward-fill" />
+                    </button>
+                  </div>
+                )}
               </div>
             </section>
               ) : (
@@ -463,14 +532,17 @@ function Home() {
                 <p>Likes Received: <span className="value">10</span></p>
                 <p>Check-in Streak: <span className="value">1 day 🔥</span></p>
               </div>
-              {!bonusClaimed && (
-              <button
-                onClick={handleClaimBonus}
-                className="secondary-btn"
-              >
-                <i className="bi bi-gift" /> Claim Daily Bonus
-              </button>
-            )}
+              <div>
+                {!bonusClaimed && (
+                  <button
+                    onClick={handleClaimBonus}
+                    className="secondary-btn"
+                  >
+                    <i className="bi bi-gift" /> Claim Daily Bonus
+                  </button>
+                )}  
+              </div>
+              
             </section>
 
             <section className="leaderboard-box">
